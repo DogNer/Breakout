@@ -340,6 +340,5 @@ public class Main extends GraphicsProgram {
         ball.setColor(Color.decode("#9C4A1A"));
         add(ball, 342, 934);
         //
-        /
     }
 }
