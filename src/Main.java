@@ -1,5 +1,6 @@
 import acm.graphics.GImage;
 import acm.graphics.GLabel;
+import acm.graphics.GRect;
 import acm.program.GraphicsProgram;
 
 // Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
@@ -7,9 +8,7 @@ import acm.program.GraphicsProgram;
 public class Main extends GraphicsProgram {
 
     public void run() {
-        this.setSize(1000, 700);
+        this.setSize(710 + 14, 800 + 60);
 
-        GLabel l = new GLabel("dfgdfg", 500, 500);
-        add(l);
     }
 }
