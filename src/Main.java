@@ -15,24 +15,41 @@ public class Main extends GraphicsProgram {
     public static int DELAY = 10;
     boolean menu = false;
     public GRect rocket;
+    private int cnt = 0;
+    private int lifes = 3;
+    private GImage heart1, heart2, heart3;
 
     public void run() {
         this.setSize(710 + 14, 700 + 60);
         //wallPaper();
         Member brick = new Member();
-        for (int j = 1; j <= 5; ++j) {
-            for (int i = 0; i < 10; ++i) {
-                brick.ob = new GRect(10 + 70 * i, 100 + 15 * j, 60, 10);
+        for (int j = 1; j <= 2; ++j) {
+            for (int i = 0; i < 5; ++i) {
+                brick.ob = new GRect(10 + 140 * i, 100 + 15 * j, 130, 10);
                 brick.index = i + 10 * (j - 1);
                 brick.ob.setFilled(true);
                 brick.ob.setFillColor(Color.black);
                 add(brick.ob);
+                cnt++;
             }
         }
+        addLives();
         rocket();
         setBall();
         addMouseListeners();
         addKeyListeners();
+    }
+
+    private void addLives(){
+        heart1 = new GImage("heart.png");
+        heart2 = new GImage("heart.png");
+        heart3 = new GImage("heart.png");
+        heart1.scale(0.1);
+        heart2.scale(0.1);
+        heart3.scale(0.1);
+        add(heart1, 10, 10);
+        add(heart2, 20 + heart1.getWidth(), 10);
+        add(heart3, 30 + heart1.getWidth() * 2, 10);
     }
 
     public void wallPaper() {
@@ -76,11 +93,22 @@ public class Main extends GraphicsProgram {
         return false;
     }
 
-    private boolean inCircle(GObject balls, GObject getOb){
+    private boolean inCircle(GOval balls, GObject getOb){
         double ballX = balls.getX() - 8, ballY = balls.getY() - 8;
         return Math.pow(ballX - getOb.getX(), 2) + Math.pow(ballY - getOb.getY(), 2) <= 64;
     }
 
+    private void stopGameBad(){
+        removeAll();
+    }
+
+    private boolean cntIsZero(){
+        cnt--;
+        if (cnt <= 0){
+            removeAll();
+        }
+        return cnt <= 0;
+    }
     @Override
     public void mouseClicked(MouseEvent mouseEvent) {
         /*while (ball.getX() <= getWidth()) {
@@ -100,14 +128,17 @@ public class Main extends GraphicsProgram {
                             getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() - 1) != rocket) {
                         speedY *= -1;
                         remove(getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() - 1));
+                        if(cntIsZero()) T.cancel();
                     } else if (getElementAt(ball.getX() + ball.getWidth(), ball.getY() - 1) != null &&
                             getElementAt(ball.getX() + ball.getWidth(), ball.getY() - 1)!= rocket) {
                         speedY *= -1;
                         remove(getElementAt(ball.getX() + ball.getWidth(), ball.getY() - 1));
+                        if(cntIsZero()) T.cancel();
                     } else if (getElementAt(ball.getX(), ball.getY() - 1) != null &&
                             getElementAt(ball.getX(), ball.getY() - 1) != rocket) {
                         speedY *= -1;
                         remove(getElementAt(ball.getX(), ball.getY() - 1));
+                        if(cntIsZero()) T.cancel();
                     }
 
                     //bottom
@@ -115,15 +146,18 @@ public class Main extends GraphicsProgram {
                      && getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1) != rocket){
                         speedY *= -1;
                         remove(getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1));
+                        if(cntIsZero()) T.cancel();
                     }
                     else if (getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight() + 1) != null
                             && getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight() + 1) != rocket) {
                         speedY *= -1;
                         remove(getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight() + 1));
+                        if(cntIsZero()) T.cancel();
                     }else if (getElementAt(ball.getX(), ball.getY() + ball.getHeight() + 1) != null
                             && getElementAt(ball.getX(), ball.getY() + ball.getHeight() + 1) != rocket) {
                         speedY *= -1;
                         remove(getElementAt(ball.getX(), ball.getY() + ball.getHeight() + 1));
+                        if(cntIsZero()) T.cancel();
                     }
 
                     //left
@@ -131,15 +165,18 @@ public class Main extends GraphicsProgram {
                             && getElementAt(ball.getX() - 1, ball.getY()) != rocket){
                         speedX *= -1;
                         remove(getElementAt(ball.getX() - 1, ball.getY()));
+                        if(cntIsZero()) T.cancel();
                     }
                     else if (getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight() / 2) != null
                             && getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight() / 2) != rocket) {
                         speedX *= -1;
                         remove(getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight() / 2));
+                        if(cntIsZero()) T.cancel();
                     }else if (getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight()) != null
                             && getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight()) != rocket) {
                         speedX *= -1;
                         remove(getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight()));
+                        if(cntIsZero()) T.cancel();
                     }
 
                     //right
@@ -147,16 +184,30 @@ public class Main extends GraphicsProgram {
                             && getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY()) != rocket){
                         speedX *= -1;
                         remove(getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY()));
+                        if(cntIsZero()) T.cancel();
                     }
                     else if (getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != null
                             && getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != rocket) {
                         speedX *= -1;
                         remove(getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2));
+                        if(cntIsZero()) T.cancel();
                     }else if (getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight()) != null
                             && getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight()) != rocket) {
                         speedX *= -1;
                         remove(getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight()));
+                        if(cntIsZero()) T.cancel();
                     }
+                }
+
+                if (getElementAt(ball.getX() - 1, ball.getY() - 1) == rocket && inCircle(ball, getElementAt(ball.getX() - 1, ball.getY() - 1))){
+                    speedY *= -1;
+                    remove(getElementAt(ball.getX(), ball.getY()));
+                    if(cntIsZero()) T.cancel();
+                }
+                if (getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() - 1) == rocket && inCircle(ball, getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() - 1))){
+                    speedY *= -1;
+                    remove(getElementAt(ball.getX(), ball.getY()));
+                    if(cntIsZero()) T.cancel();
                 }
 
                 if (ball.getX() + ball.getWidth() + speedX <= getWidth() || ball.getX() - ball.getWidth() + speedX >= 0)
@@ -169,8 +220,41 @@ public class Main extends GraphicsProgram {
                 if (ball.getY() + speedY <= 0) {
                     speedY *= -1;
                 }
-                if (ball.getY() + speedY + ball.getHeight() >= getHeight())
-                    T.cancel();
+                if (ball.getY() + speedY + ball.getHeight() >= getHeight()) {
+                    lifes--;
+                    if (lifes == 2) {
+                        T.cancel();
+                        remove(heart3);
+                        remove(rocket);
+                        remove(ball);
+                        rocket();
+                        setBall();
+                        speedX = 5;
+                        speedY = -5;
+                    }
+                    else if (lifes == 1) {
+                        T.cancel();
+                        remove(heart2);
+                        remove(rocket);
+                        remove(ball);
+                        rocket();
+                        setBall();
+                        speedX = 5;
+                        speedY = -5;
+                    }
+                    else if (lifes == 0){
+                        T.cancel();
+                        remove(heart1);
+                        remove(rocket);
+                        remove(ball);
+                        rocket();
+                        setBall();
+                        speedX = 5;
+                        speedY = -5;
+                    }
+                    if(lifes <= 0) T.cancel();
+
+                }
 
                 if (isRocket(ball)) {
                     speedY *= -1;
@@ -178,7 +262,7 @@ public class Main extends GraphicsProgram {
 
             }
         };
-        T.scheduleAtFixedRate(Birthday, 0, 200);
+        T.scheduleAtFixedRate(Birthday, 0, 50);
     }
 
     @Override
