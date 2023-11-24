@@ -4,6 +4,10 @@ import acm.program.ConsoleProgram;
 import acm.program.GraphicsProgram;
 
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Main extends GraphicsProgram {
     public GRect rocket;
@@ -58,7 +62,9 @@ public class Main extends GraphicsProgram {
     public GRect brick48;
     public GRect brick49;
     public GRect brick50;
-    public GOval ball;
+    public GOval ball = null;
+    public static int DELAY = 10;
+    boolean menu = false;
 
     public void run() {
         this.setSize(710, 1000);
@@ -66,6 +72,7 @@ public class Main extends GraphicsProgram {
         rocket();
         setBricks();
         setBall();
+
     }
 
     public void wallPaper() {
@@ -73,6 +80,8 @@ public class Main extends GraphicsProgram {
         wallpaper.setFilled(true);
         wallpaper.setColor(Color.decode("#efe6d6"));
         add(wallpaper);
+        addMouseListeners();
+        addKeyListeners();
     }
 
     public void rocket() {
@@ -339,6 +348,65 @@ public class Main extends GraphicsProgram {
         ball.setFilled(true);
         ball.setColor(Color.decode("#9C4A1A"));
         add(ball, 342, 934);
-        //
+    }
+
+    public void moveBall(int speedX, int speedY) {
+        ball.move(speedX, speedY);
+    }
+
+//    public void mouseDragged(MouseEvent e) {
+//        rocket.move(getM, 0);
+//    }
+
+
+    @Override
+    public void mouseClicked(MouseEvent mouseEvent) {
+        /*while (ball.getX() <= getWidth()) {
+            moveBall();
+            pause(DELAY);
+        }*/
+
+
+        Timer T = new Timer();
+        TimerTask Birthday = new TimerTask(){
+            int i = 1, j = 1;
+            int speedX = 5, speedY = -5;
+            @Override
+            public void run(){
+                if (ball.getX() + ball.getWidth() + speedX <= getWidth()) {
+                    moveBall(speedX, speedY);
+                }
+                if (ball.getX() + ball.getWidth() + speedX >= getWidth())
+                    speedX *= -1;
+                if (ball.getX() - ball.getWidth() + speedX >= 0 ){
+                    moveBall(speedX, speedY);
+                }
+                if (ball.getX() - ball.getWidth() + speedX <= 0)
+                    speedX *= -1;
+                if (ball.getY() >= 0 && ball.getY() + speedY + ball.getHeight() <= getHeight())
+                    moveBall(speedX, speedY);
+                if (ball.getY() <= 0) {
+                    speedY *= -1;
+                    System.out.println("sdf");
+                }
+                if (ball.getY() + speedY + ball.getHeight() >= getHeight())
+                    T.cancel();
+            }
+        };
+        T.scheduleAtFixedRate(Birthday, 0, 50);
+    }
+
+    @Override
+    public void keyPressed(KeyEvent keyEvent) {
+        int speed = 30;
+        if (keyEvent.getKeyCode() == KeyEvent.VK_LEFT){
+            if (rocket.getX() >= 0)
+                rocket.setLocation(rocket.getX() - speed, rocket.getY());
+        }
+        else if (keyEvent.getKeyCode() == KeyEvent.VK_RIGHT) {
+            if (rocket.getX() + rocket.getWidth() <= getWidth()) {
+                rocket.setLocation(rocket.getX() + speed, rocket.getY());
+            }
+        }
     }
 }
