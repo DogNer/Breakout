@@ -20,8 +20,20 @@ public class Main extends GraphicsProgram {
     private GImage heart1, heart2, heart3;
 
     public void run() {
+        gameUpload();
+        addMouseListeners();
+        addKeyListeners();
+    }
+
+    private void loadWindow(){
+        this.setSize(500, 500);
+        GRect r = new GRect(250, 250, 50, 50);
+        add(r);
+    }
+
+    private void gameUpload(){
         this.setSize(710 + 14, 700 + 60);
-        //wallPaper();
+        wallPaper();
         Member brick = new Member();
         for (int j = 1; j <= 2; ++j) {
             for (int i = 0; i < 5; ++i) {
@@ -36,8 +48,6 @@ public class Main extends GraphicsProgram {
         addLives();
         rocket();
         setBall();
-        addMouseListeners();
-        addKeyListeners();
     }
 
     private void addLives(){
@@ -70,7 +80,7 @@ public class Main extends GraphicsProgram {
         ball = new GOval(0,0, 16,16);
         ball.setFilled(true);
         ball.setColor(Color.decode("#9C4A1A"));
-        add(ball, 342, 600-17);
+        add(ball, 342, 20);
     }
 
     public void moveBall(int speedX, int speedY) {
@@ -124,18 +134,33 @@ public class Main extends GraphicsProgram {
             public void run(){
                 if (ball.getY() <= rocket.getY()) {
                     //top
-                    if (getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() - 1) != null &&
-                            getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() - 1) != rocket) {
+                    if (getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() - 1) != null
+                            && getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() - 1) != rocket
+                            && getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() - 1) != wallpaper
+                            && heart1 != null && heart2 != null && heart3 != null
+                            && getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() - 1) != heart1
+                            && getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() - 1) != heart2
+                            && getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() - 1) != heart3) {
                         speedY *= -1;
                         remove(getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() - 1));
                         if(cntIsZero()) T.cancel();
-                    } else if (getElementAt(ball.getX() + ball.getWidth(), ball.getY() - 1) != null &&
-                            getElementAt(ball.getX() + ball.getWidth(), ball.getY() - 1)!= rocket) {
+                    } else if (getElementAt(ball.getX() + ball.getWidth(), ball.getY() - 1) != null
+                            && getElementAt(ball.getX() + ball.getWidth(), ball.getY() - 1)!= rocket
+                            && getElementAt(ball.getX() + ball.getWidth(), ball.getY() - 1) != wallpaper
+                            && heart1 != null && heart2 != null && heart3 != null
+                            && getElementAt(ball.getX() + ball.getWidth(), ball.getY() - 1) != heart1
+                            && getElementAt(ball.getX() + ball.getWidth(), ball.getY() - 1) != heart2
+                            && getElementAt(ball.getX() + ball.getWidth(), ball.getY() - 1) != heart3) {
                         speedY *= -1;
                         remove(getElementAt(ball.getX() + ball.getWidth(), ball.getY() - 1));
                         if(cntIsZero()) T.cancel();
-                    } else if (getElementAt(ball.getX(), ball.getY() - 1) != null &&
-                            getElementAt(ball.getX(), ball.getY() - 1) != rocket) {
+                    } else if (getElementAt(ball.getX(), ball.getY() - 1) != null
+                            && getElementAt(ball.getX(), ball.getY() - 1) != rocket
+                            && getElementAt(ball.getX(), ball.getY() - 1) != wallpaper
+                            && heart1 != null && heart2 != null && heart3 != null
+                            && getElementAt(ball.getX(), ball.getY() - 1) != heart1
+                            && getElementAt(ball.getX(), ball.getY() - 1) != heart2
+                            && getElementAt(ball.getX(), ball.getY() - 1) != heart3) {
                         speedY *= -1;
                         remove(getElementAt(ball.getX(), ball.getY() - 1));
                         if(cntIsZero()) T.cancel();
@@ -143,18 +168,33 @@ public class Main extends GraphicsProgram {
 
                     //bottom
                     if (getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1) != null
-                     && getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1) != rocket){
+                        && getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1) != rocket
+                        && getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1) != wallpaper
+                            && heart1 != null && heart2 != null && heart3 != null
+                            && getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1) != heart1
+                            && getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1) != heart2
+                            && getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1) != heart3){
                         speedY *= -1;
                         remove(getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1));
                         if(cntIsZero()) T.cancel();
                     }
                     else if (getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight() + 1) != null
-                            && getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight() + 1) != rocket) {
+                            && getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight() + 1) != rocket
+                            && getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight() + 1) != wallpaper
+                            && heart1 != null && heart2 != null && heart3 != null
+                            && getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight() + 1) != heart1
+                            && getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight() + 1) != heart2
+                            && getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight() + 1) != heart3) {
                         speedY *= -1;
                         remove(getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight() + 1));
                         if(cntIsZero()) T.cancel();
                     }else if (getElementAt(ball.getX(), ball.getY() + ball.getHeight() + 1) != null
-                            && getElementAt(ball.getX(), ball.getY() + ball.getHeight() + 1) != rocket) {
+                            && getElementAt(ball.getX(), ball.getY() + ball.getHeight() + 1) != rocket
+                            && getElementAt(ball.getX(), ball.getY() + ball.getHeight() + 1) != wallpaper
+                            && heart1 != null && heart2 != null && heart3 != null
+                            && getElementAt(ball.getX(), ball.getY() + ball.getHeight() + 1) != heart1
+                            && getElementAt(ball.getX(), ball.getY() + ball.getHeight() + 1) != heart2
+                            && getElementAt(ball.getX(), ball.getY() + ball.getHeight() + 1) != heart3) {
                         speedY *= -1;
                         remove(getElementAt(ball.getX(), ball.getY() + ball.getHeight() + 1));
                         if(cntIsZero()) T.cancel();
@@ -162,18 +202,33 @@ public class Main extends GraphicsProgram {
 
                     //left
                     if (getElementAt(ball.getX() - 1, ball.getY()) != null
-                            && getElementAt(ball.getX() - 1, ball.getY()) != rocket){
+                            && getElementAt(ball.getX() - 1, ball.getY()) != rocket
+                            && getElementAt(ball.getX() - 1, ball.getY()) != wallpaper
+                            && heart1 != null && heart2 != null && heart3 != null
+                            && getElementAt(ball.getX() - 1, ball.getY()) != heart1
+                            && getElementAt(ball.getX() - 1, ball.getY()) != heart2
+                            && getElementAt(ball.getX() - 1, ball.getY()) != heart3){
                         speedX *= -1;
                         remove(getElementAt(ball.getX() - 1, ball.getY()));
                         if(cntIsZero()) T.cancel();
                     }
                     else if (getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight() / 2) != null
-                            && getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight() / 2) != rocket) {
+                            && getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight() / 2) != rocket
+                            && getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight() / 2) != wallpaper
+                            && heart1 != null && heart2 != null && heart3 != null
+                            && getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight() / 2) != heart1
+                            && getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight() / 2) != heart2
+                            && getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight() / 2) != heart3) {
                         speedX *= -1;
                         remove(getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight() / 2));
                         if(cntIsZero()) T.cancel();
                     }else if (getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight()) != null
-                            && getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight()) != rocket) {
+                            && getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight()) != rocket
+                            && getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight()) != wallpaper
+                            && heart1 != null && heart2 != null && heart3 != null
+                            && getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight()) != heart1
+                            && getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight()) != heart2
+                            && getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight()) != heart3) {
                         speedX *= -1;
                         remove(getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight()));
                         if(cntIsZero()) T.cancel();
@@ -181,34 +236,52 @@ public class Main extends GraphicsProgram {
 
                     //right
                     if (getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY()) != null
-                            && getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY()) != rocket){
+                            && getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY()) != rocket
+                            && getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY()) != wallpaper
+                            && heart1 != null && heart2 != null && heart3 != null
+                            && getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY()) != heart1
+                            && getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY()) != heart2
+                            && getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY()) != heart3){
                         speedX *= -1;
                         remove(getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY()));
                         if(cntIsZero()) T.cancel();
                     }
                     else if (getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != null
-                            && getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != rocket) {
+                            && getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != rocket
+                            &&  getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != wallpaper
+                            && heart1 != null && heart2 != null && heart3 != null
+                            &&  getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != heart1
+                            &&  getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != heart2
+                            &&  getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != heart3) {
                         speedX *= -1;
                         remove(getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2));
                         if(cntIsZero()) T.cancel();
                     }else if (getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight()) != null
-                            && getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight()) != rocket) {
+                            && getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight()) != rocket
+                            && getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight()) != wallpaper
+                            && heart1 != null && heart2 != null && heart3 != null
+                            && getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight()) != heart1
+                            && getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight()) != heart2
+                            && getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight()) != heart3) {
                         speedX *= -1;
                         remove(getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight()));
                         if(cntIsZero()) T.cancel();
                     }
                 }
-
-                if (getElementAt(ball.getX() - 1, ball.getY() - 1) == rocket && inCircle(ball, getElementAt(ball.getX() - 1, ball.getY() - 1))){
+                /*if (getElementAt(ball.getX() - 1, ball.getY() - 1) == rocket
+                        && inCircle(ball, getElementAt(ball.getX() - 1, ball.getY() - 1))
+                        && getElementAt(ball.getX() - 1, ball.getY() - 1) != wallpaper){
                     speedY *= -1;
                     remove(getElementAt(ball.getX(), ball.getY()));
                     if(cntIsZero()) T.cancel();
                 }
-                if (getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() - 1) == rocket && inCircle(ball, getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() - 1))){
+                if (getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() - 1) == rocket
+                        && inCircle(ball, getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() - 1))
+                        && getElementAt(ball.getX() - 1, ball.getY() - 1) != wallpaper){
                     speedY *= -1;
                     remove(getElementAt(ball.getX(), ball.getY()));
                     if(cntIsZero()) T.cancel();
-                }
+                }*/
 
                 if (ball.getX() + ball.getWidth() + speedX <= getWidth() || ball.getX() - ball.getWidth() + speedX >= 0)
                     moveBall(speedX, speedY);
