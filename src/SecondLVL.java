@@ -2,6 +2,7 @@ import acm.graphics.GImage;
 import acm.graphics.GObject;
 import acm.graphics.GOval;
 import acm.graphics.GRect;
+import acm.io.IODialog;
 import acm.program.GraphicsProgram;
 
 import java.awt.*;
@@ -11,7 +12,7 @@ import java.awt.event.MouseListener;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class Tester extends GraphicsProgram implements MouseListener {
+public class SecondLVL extends GraphicsProgram implements MouseListener {
     GRect wallpaper;
     public GOval ball = null;
     public static int DELAY = 10;
@@ -25,7 +26,7 @@ public class Tester extends GraphicsProgram implements MouseListener {
 
     public boolean buttonPressed = false;
 
-    public Tester(Main main) {
+    public SecondLVL(Main main) {
         this.main = main;
     }
 
@@ -326,6 +327,8 @@ public class Tester extends GraphicsProgram implements MouseListener {
         cnt--;
         if (cnt <= 0){
             main.removeAll();
+            IODialog dialog = new IODialog();
+            dialog.println("Вітаю! Ви пройшли другий рівень");
         }
         return cnt <= 0;
     }

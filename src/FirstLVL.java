@@ -11,7 +11,7 @@ import java.awt.event.MouseListener;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class Tester extends GraphicsProgram implements MouseListener {
+public class FirstLVL extends GraphicsProgram implements MouseListener {
     GRect wallpaper;
     public GOval ball = null;
     public static int DELAY = 10;
@@ -25,16 +25,16 @@ public class Tester extends GraphicsProgram implements MouseListener {
 
     public boolean buttonPressed = false;
 
-    public Tester(Main main) {
+    public FirstLVL(Main main) {
         this.main = main;
     }
 
     public void gameUpload(){
         main.add(wallpaper);
         Member brick = new Member();
-        for (int j = 1; j <= 5; ++j) {
-            for (int i = 0; i < 10; ++i) {
-                brick.ob = new GRect(10 + 70 * i, 100 + 15 * j, 60, 10);
+        for (int j = 1; j <= 2; ++j) {
+            for (int i = 0; i < 5; ++i) {
+                brick.ob = new GRect(10 + 140 * i, 100 + 25 * j, 130, 20);
                 brick.index = i + 10 * (j - 1);
                 brick.ob.setFilled(true);
                 switch (j) {
@@ -292,7 +292,7 @@ public class Tester extends GraphicsProgram implements MouseListener {
         ball = new GOval(0,0, 30,30);
         ball.setFilled(true);
         ball.setColor(Color.decode("#9C4A1A"));
-        main.add(ball, 325, 300);
+        main.add(ball, 342, 300);
     }
 
     public void moveBall(int speedX, int speedY) {
@@ -352,5 +352,3 @@ public class Tester extends GraphicsProgram implements MouseListener {
             this.rocket.setLocation(mouseEvent.getX(), this.rocket.getY());
     }
 }
-
-
