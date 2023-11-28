@@ -229,9 +229,8 @@ public class FirstLVL extends GraphicsProgram implements MouseListener {
                         T.cancel();
                         buttonPressed = false;
                     } else if (lifes == 0) {
-                        main.removeAll();
                         T.cancel();
-                        main.loadWindow();
+                        windowIfLost();
                     }
 
                 }
@@ -271,7 +270,12 @@ public class FirstLVL extends GraphicsProgram implements MouseListener {
         return false;
     }
 
-
+    private void windowIfLost(){
+        IODialog dialog = new IODialog();
+        dialog.println("Вітаю! Ви пройшли третій рівень");
+        main.removeAll();
+        main.loadWindow();
+    }
 
     private boolean cntIsZero(){
         if (cnt <= 0){
