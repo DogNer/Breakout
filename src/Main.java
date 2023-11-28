@@ -17,7 +17,6 @@ public class Main extends GraphicsProgram implements MouseListener{
     private int cnt = 0;
     private int lifes = 3;
     private GImage heart1, heart2, heart3;
-    public int speedX = 5, speedY = -5;
 
     public void run() {
         //gameUpload();
@@ -26,7 +25,7 @@ public class Main extends GraphicsProgram implements MouseListener{
 
     }
 
-    private void loadWindow(){
+    public void loadWindow(){
         this.setSize(500, 500);
         StartMenu inter = new StartMenu(this);
         int size = 26;
@@ -800,14 +799,14 @@ public class Main extends GraphicsProgram implements MouseListener{
     }
 
     public GRect rocket() {
-        rocket = new GRect(310, 600, 80, 7);
+        rocket = new GRect(310, 600, 100, 20);
         rocket.setFilled(true);
         rocket.setColor(Color.decode("#666235"));
         return rocket;
     }
 
     public GOval setBall() {
-        GOval ball1 = new GOval(342, 300, 30,30);
+        GOval ball1 = new GOval(342, 300, 16,16);
         ball1.setFilled(true);
         ball1.setColor(Color.decode("#9C4A1A"));
         return ball1;
@@ -846,16 +845,6 @@ public class Main extends GraphicsProgram implements MouseListener{
             removeAll();
         }
         return cnt <= 0;
-    }
-
-    private void deleteLifes(GImage life){
-        remove(life);
-        remove(rocket);
-        remove(ball);
-        rocket();
-        setBall();
-        speedX = 5;
-        speedY = -5;
     }
 
     @Override

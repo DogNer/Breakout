@@ -2,6 +2,7 @@ import acm.graphics.GImage;
 import acm.graphics.GObject;
 import acm.graphics.GOval;
 import acm.graphics.GRect;
+import acm.io.IODialog;
 import acm.program.GraphicsProgram;
 
 import java.awt.*;
@@ -20,10 +21,12 @@ public class FirstLVL extends GraphicsProgram implements MouseListener {
     private int cnt = 0;
     public int lifes = 3;
     public GImage heart1 = null, heart2 = null, heart3 = null;
-    public int speedX = 5, speedY = -5;
+    public int speedX = 3, speedY = -4;
     private Main main;
 
     public boolean buttonPressed = false;
+    private static final int NUMBEROFBRICKS = 1;
+    private static final int DISTANCEBETWEENBRICKS = 1;
 
     public FirstLVL(Main main) {
         this.main = main;
@@ -33,8 +36,8 @@ public class FirstLVL extends GraphicsProgram implements MouseListener {
         main.add(wallpaper);
         Member brick = new Member();
         for (int j = 1; j <= 2; ++j) {
-            for (int i = 0; i < 5; ++i) {
-                brick.ob = new GRect(10 + 140 * i, 100 + 25 * j, 130, 20);
+            for (int i = 0; i < NUMBEROFBRICKS; ++i) {
+                brick.ob = new GRect(DISTANCEBETWEENBRICKS * (i+1) + (((double) main.getWidth() - DISTANCEBETWEENBRICKS * (NUMBEROFBRICKS + 1)) / NUMBEROFBRICKS) * i, 100 + 28 * j, (((double) main.getWidth() - DISTANCEBETWEENBRICKS * (NUMBEROFBRICKS + 1)) / 5), 25);
                 brick.index = i + 10 * (j - 1);
                 brick.ob.setFilled(true);
                 switch (j) {
@@ -78,12 +81,12 @@ public class FirstLVL extends GraphicsProgram implements MouseListener {
         main.add(ball);
     }
 
-    public void movementOfBall(){
+    public void movementOfBall() {
 
         Timer T = new Timer();
-        TimerTask g = new TimerTask(){
+        TimerTask g = new TimerTask() {
             @Override
-            public void run(){
+            public void run() {
                 if (ball.getY() <= rocket.getY()) {
                     //top
                     if (main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() - 1) != null
@@ -95,75 +98,27 @@ public class FirstLVL extends GraphicsProgram implements MouseListener {
                             && main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() - 1) != heart3) {
                         speedY *= -1;
                         main.remove(main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() - 1));
-                        if(cntIsZero()) T.cancel();
-                    } else if (main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() - 1) != null
-                            && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() - 1)!= rocket
-                            && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() - 1) != wallpaper
-                            && heart1 != null && heart2 != null && heart3 != null
-                            && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() - 1) != heart1
-                            && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() - 1) != heart2
-                            && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() - 1) != heart3) {
-                        speedY *= -1;
-                        main.remove(main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() - 1));
-                        if(cntIsZero()) T.cancel();
-                    } else if (main.getElementAt(ball.getX(), ball.getY() - 1) != null
-                            && main.getElementAt(ball.getX(), ball.getY() - 1) != rocket
-                            && main.getElementAt(ball.getX(), ball.getY() - 1) != wallpaper
-                            && heart1 != null && heart2 != null && heart3 != null
-                            && main.getElementAt(ball.getX(), ball.getY() - 1) != heart1
-                            && main.getElementAt(ball.getX(), ball.getY() - 1) != heart2
-                            && main.getElementAt(ball.getX(), ball.getY() - 1) != heart3) {
-                        speedY *= -1;
-                        main.remove(main.getElementAt(ball.getX(), ball.getY() - 1));
-                        if(cntIsZero()) T.cancel();
+                        cnt--;
+                        if (cntIsZero()) T.cancel();
+                        
                     }
 
                     //bottom
-                    if (main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1) != null
+                    else if (main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1) != null
                             && main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1) != rocket
                             && main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1) != wallpaper
                             && heart1 != null && heart2 != null && heart3 != null
                             && main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1) != heart1
                             && main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1) != heart2
-                            && main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1) != heart3){
+                            && main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1) != heart3) {
                         speedY *= -1;
                         main.remove(main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1));
-                        if(cntIsZero()) T.cancel();
-                    }
-                    else if (main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight() + 1) != null
-                            && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight() + 1) != rocket
-                            && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight() + 1) != wallpaper
-                            && heart1 != null && heart2 != null && heart3 != null
-                            && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight() + 1) != heart1
-                            && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight() + 1) != heart2
-                            && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight() + 1) != heart3) {
-                        speedY *= -1;
-                        main.remove(main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight() + 1));
-                        if(cntIsZero()) T.cancel();
-                    }else if (main.getElementAt(ball.getX(), ball.getY() + ball.getHeight() + 1) != null
-                            && main.getElementAt(ball.getX(), ball.getY() + ball.getHeight() + 1) != rocket
-                            && main.getElementAt(ball.getX(), ball.getY() + ball.getHeight() + 1) != wallpaper
-                            && heart1 != null && heart2 != null && heart3 != null
-                            && main.getElementAt(ball.getX(), ball.getY() + ball.getHeight() + 1) != heart1
-                            && main.getElementAt(ball.getX(), ball.getY() + ball.getHeight() + 1) != heart2
-                            && main.getElementAt(ball.getX(), ball.getY() + ball.getHeight() + 1) != heart3) {
-                        speedY *= -1;
-                        main.remove(main.getElementAt(ball.getX(), ball.getY() + ball.getHeight() + 1));
-                        if(cntIsZero()) T.cancel();
+                        cnt--;
+                        if (cntIsZero()) T.cancel();
+                        
                     }
 
                     //left
-                    if (main.getElementAt(ball.getX() - 1, ball.getY()) != null
-                            && main.getElementAt(ball.getX() - 1, ball.getY()) != rocket
-                            && main.getElementAt(ball.getX() - 1, ball.getY()) != wallpaper
-                            && heart1 != null && heart2 != null && heart3 != null
-                            && main.getElementAt(ball.getX() - 1, ball.getY()) != heart1
-                            && main.getElementAt(ball.getX() - 1, ball.getY()) != heart2
-                            && main.getElementAt(ball.getX() - 1, ball.getY()) != heart3){
-                        speedX *= -1;
-                        main.remove(main.getElementAt(ball.getX() - 1, ball.getY()));
-                        if(cntIsZero()) T.cancel();
-                    }
                     else if (main.getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight() / 2) != null
                             && main.getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight() / 2) != rocket
                             && main.getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight() / 2) != wallpaper
@@ -173,52 +128,84 @@ public class FirstLVL extends GraphicsProgram implements MouseListener {
                             && main.getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight() / 2) != heart3) {
                         speedX *= -1;
                         main.remove(main.getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight() / 2));
-                        if(cntIsZero()) T.cancel();
-                    }else if (main.getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight()) != null
-                            && main.getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight()) != rocket
-                            && main.getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight()) != wallpaper
-                            && heart1 != null && heart2 != null && heart3 != null
-                            && main.getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight()) != heart1
-                            && main.getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight()) != heart2
-                            && main.getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight()) != heart3) {
-                        speedX *= -1;
-                        main.remove(main.getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight()));
-                        if(cntIsZero()) T.cancel();
+                        cnt--;
+                        if (cntIsZero()) T.cancel();
+                        
                     }
 
                     //right
-                    if (main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY()) != null
-                            && main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY()) != rocket
-                            && main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY()) != wallpaper
-                            && heart1 != null && heart2 != null && heart3 != null
-                            && main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY()) != heart1
-                            && main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY()) != heart2
-                            && main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY()) != heart3){
-                        speedX *= -1;
-                        main.remove(main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY()));
-                        if(cntIsZero()) T.cancel();
-                    }
                     else if (main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != null
                             && main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != rocket
-                            &&  main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != wallpaper
+                            && main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != wallpaper
                             && heart1 != null && heart2 != null && heart3 != null
-                            &&  main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != heart1
-                            &&  main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != heart2
-                            &&  main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != heart3) {
+                            && main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != heart1
+                            && main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != heart2
+                            && main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != heart3) {
                         speedX *= -1;
                         main.remove(main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2));
-                        if(cntIsZero()) T.cancel();
-                    }else if (main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight()) != null
-                            && main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight()) != rocket
-                            && main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight()) != wallpaper
-                            && heart1 != null && heart2 != null && heart3 != null
-                            && main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight()) != heart1
-                            && main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight()) != heart2
-                            && main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight()) != heart3) {
-                        speedX *= -1;
-                        main.remove(main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight()));
-                        if(cntIsZero()) T.cancel();
+                        cnt--;
+                        if (cntIsZero()) T.cancel();
+                        
                     }
+
+                    else if (main.getElementAt(ball.getX(), ball.getY()) != null
+                            && main.getElementAt(ball.getX(), ball.getY()) != rocket
+                            && main.getElementAt(ball.getX(), ball.getY()) != wallpaper
+                            && heart1 != null && heart2 != null && heart3 != null
+                            && main.getElementAt(ball.getX(), ball.getY()) != heart1
+                            && main.getElementAt(ball.getX(), ball.getY()) != heart2
+                            && main.getElementAt(ball.getX(), ball.getY()) != heart3) {
+                        speedY *= -1;
+                        speedX *= -1;
+                        main.remove(main.getElementAt(ball.getX(), ball.getY()));
+                        cnt--;
+                        if (cntIsZero()) T.cancel();
+                        
+                    }
+                    else if (main.getElementAt(ball.getX() + ball.getWidth(), ball.getY()) != null
+                            && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY()) != rocket
+                            && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY()) != wallpaper
+                            && heart1 != null && heart2 != null && heart3 != null
+                            && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY()) != heart1
+                            && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY()) != heart2
+                            && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY()) != heart3) {
+                        speedY *= -1;
+                        speedX *= -1;
+                        main.remove(main.getElementAt(ball.getX() + ball.getWidth(), ball.getY()));
+                        cnt--;
+                        if (cntIsZero()) T.cancel();
+                        
+                    }
+                    else if (main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight()) != null
+                            && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight()) != rocket
+                            && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight()) != wallpaper
+                            && heart1 != null && heart2 != null && heart3 != null
+                            && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight()) != heart1
+                            && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight()) != heart2
+                            && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight()) != heart3) {
+                        speedY *= -1;
+                        speedX *= -1;
+                        main.remove(main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight()));
+                        cnt--;
+                        
+                        if (cntIsZero()) T.cancel();
+                    }
+                    else if (main.getElementAt(ball.getX(), ball.getY() + ball.getHeight()) != null
+                            && main.getElementAt(ball.getX(), ball.getY() + ball.getHeight()) != rocket
+                            && main.getElementAt(ball.getX(), ball.getY() + ball.getHeight()) != wallpaper
+                            && heart1 != null && heart2 != null && heart3 != null
+                            && main.getElementAt(ball.getX(), ball.getY() + ball.getHeight()) != heart1
+                            && main.getElementAt(ball.getX(), ball.getY() + ball.getHeight()) != heart2
+                            && main.getElementAt(ball.getX(), ball.getY() + ball.getHeight()) != heart3) {
+                        speedY *= -1;
+                        speedX *= -1;
+                        main.remove(main.getElementAt(ball.getX(), ball.getY() + ball.getHeight()));
+
+                        cnt--;
+                        if (cntIsZero()) T.cancel();
+                    }
+                    System.out.println(cnt);
+
                 }
 
                 if (ball.getX() + ball.getWidth() + speedX <= main.getWidth() || ball.getX() - ball.getWidth() + speedX >= 0)
@@ -233,19 +220,18 @@ public class FirstLVL extends GraphicsProgram implements MouseListener {
                 }
                 if (ball.getY() + speedY + ball.getHeight() >= main.getHeight()) {
                     lifes--;
-                    if (lifes == 2){
+                    if (lifes == 2) {
                         deleteLifes(heart3);
                         T.cancel();
                         buttonPressed = false;
-                    }
-                    else if (lifes == 1){
+                    } else if (lifes == 1) {
                         deleteLifes(heart2);
                         T.cancel();
                         buttonPressed = false;
-                    }
-                    else if(lifes == 0){
+                    } else if (lifes == 0) {
                         main.removeAll();
                         T.cancel();
+                        main.loadWindow();
                     }
 
                 }
@@ -260,39 +246,6 @@ public class FirstLVL extends GraphicsProgram implements MouseListener {
             }
         };
         T.scheduleAtFixedRate(g, 0, 30);
-    }
-    public void addLives(){
-        heart1 = new GImage("heart.png");
-        heart2 = new GImage("heart.png");
-        heart3 = new GImage("heart.png");
-        heart1.scale(0.1);
-        heart2.scale(0.1);
-        heart3.scale(0.1);
-        main.add(heart1, 10, 10);
-        main.add(heart2, 20 + heart1.getWidth(), 10);
-        main.add(heart3, 30 + heart1.getWidth() * 2, 10);
-    }
-
-    public void wallPaper() {
-        wallpaper = new GRect(0, 0, 710, 700);
-        wallpaper.setFilled(true);
-        wallpaper.setColor(Color.decode("#efe6d6"));
-        main.add(wallpaper);
-    }
-
-    public GRect getRocket() {
-        return rocket;
-    }
-
-    public void setRocket(GRect rocket) {
-        this.rocket = rocket;
-    }
-
-    public void setBall() {
-        ball = new GOval(0,0, 30,30);
-        ball.setFilled(true);
-        ball.setColor(Color.decode("#9C4A1A"));
-        main.add(ball, 342, 300);
     }
 
     public void moveBall(int speedX, int speedY) {
@@ -318,16 +271,17 @@ public class FirstLVL extends GraphicsProgram implements MouseListener {
         return false;
     }
 
-    private void stopGameBad(){
-        main.removeAll();
-    }
+
 
     private boolean cntIsZero(){
-        cnt--;
         if (cnt <= 0){
             main.removeAll();
+
+            IODialog dialog = new IODialog();
+            dialog.println("Вітаю! Ви пройшли третій рівень");
+            main.loadWindow();
         }
-        return cnt <= 0;
+        return cnt == 0;
     }
 
     private void deleteLifes(GImage life){
@@ -335,8 +289,8 @@ public class FirstLVL extends GraphicsProgram implements MouseListener {
         rocket.setLocation(310, 600);
         ball.setLocation(342, 300);
         //rocket();
-        speedX = 5;
-        speedY = -5;
+        speedX = 3;
+        speedY = -4;
     }
 
     @Override
@@ -352,3 +306,4 @@ public class FirstLVL extends GraphicsProgram implements MouseListener {
             this.rocket.setLocation(mouseEvent.getX(), this.rocket.getY());
     }
 }
+
