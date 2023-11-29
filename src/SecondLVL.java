@@ -2,12 +2,16 @@ import acm.graphics.GImage;
 import acm.graphics.GObject;
 import acm.graphics.GOval;
 import acm.graphics.GRect;
+import acm.io.IODialog;
 import acm.program.GraphicsProgram;
 
+import javax.sound.sampled.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
+import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -22,6 +26,9 @@ public class SecondLVL extends GraphicsProgram implements MouseListener {
     public GImage heart1 = null, heart2 = null, heart3 = null;
     public int speedX = 3, speedY = -4;
     private Main main;
+    private Clip clip;
+    private boolean soundLoaded;
+    private final String pathToClip = "hit.wav";
 
     public boolean buttonPressed = false;
 
@@ -33,8 +40,8 @@ public class SecondLVL extends GraphicsProgram implements MouseListener {
         main.add(wallpaper);
         Member brick = new Member();
         for (int j = 1; j <= 5; ++j) {
-            for (int i = 0; i < 5; ++i) {
-                brick.ob = new GRect(10*(i+1) + (((double) main.getWidth() - 10*(5+1)) / 5) * i, 100 + 28 * j, (((double) main.getWidth() - 10*(5+1)) / 5), 25);
+            for (int i = 0; i < 10; ++i) {
+                brick.ob = new GRect(10 + 70 * i, 100 + 15 * j, 60, 10);
                 brick.index = i + 10 * (j - 1);
                 brick.ob.setFilled(true);
                 switch (j) {
@@ -85,8 +92,6 @@ public class SecondLVL extends GraphicsProgram implements MouseListener {
             @Override
             public void run(){
                 if (ball.getY() <= rocket.getY()) {
-
-
                     //top
                     if (main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() - 1) != null
                             && main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() - 1) != rocket
@@ -97,7 +102,9 @@ public class SecondLVL extends GraphicsProgram implements MouseListener {
                             && main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() - 1) != heart3) {
                         speedY *= -1;
                         main.remove(main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() - 1));
-                        if(cntIsZero()) T.cancel();
+                        cnt--;
+                        if (cntIsZero()) T.cancel();
+
                     }
 
                     //bottom
@@ -107,10 +114,12 @@ public class SecondLVL extends GraphicsProgram implements MouseListener {
                             && heart1 != null && heart2 != null && heart3 != null
                             && main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1) != heart1
                             && main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1) != heart2
-                            && main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1) != heart3){
+                            && main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1) != heart3) {
                         speedY *= -1;
                         main.remove(main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1));
-                        if(cntIsZero()) T.cancel();
+                        cnt--;
+                        if (cntIsZero()) T.cancel();
+
                     }
 
                     //left
@@ -123,47 +132,55 @@ public class SecondLVL extends GraphicsProgram implements MouseListener {
                             && main.getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight() / 2) != heart3) {
                         speedX *= -1;
                         main.remove(main.getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight() / 2));
-                        if(cntIsZero()) T.cancel();
+                        cnt--;
+                        if (cntIsZero()) T.cancel();
+
                     }
 
                     //right
                     else if (main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != null
                             && main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != rocket
-                            &&  main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != wallpaper
+                            && main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != wallpaper
                             && heart1 != null && heart2 != null && heart3 != null
-                            &&  main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != heart1
-                            &&  main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != heart2
-                            &&  main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != heart3) {
+                            && main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != heart1
+                            && main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != heart2
+                            && main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != heart3) {
                         speedX *= -1;
                         main.remove(main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2));
-                        if(cntIsZero()) T.cancel();
+                        cnt--;
+                        if (cntIsZero()) T.cancel();
+
                     }
 
-                    if (main.getElementAt(ball.getX(), ball.getY()) != null
+                    else if (main.getElementAt(ball.getX(), ball.getY()) != null
                             && main.getElementAt(ball.getX(), ball.getY()) != rocket
                             && main.getElementAt(ball.getX(), ball.getY()) != wallpaper
                             && heart1 != null && heart2 != null && heart3 != null
                             && main.getElementAt(ball.getX(), ball.getY()) != heart1
                             && main.getElementAt(ball.getX(), ball.getY()) != heart2
                             && main.getElementAt(ball.getX(), ball.getY()) != heart3) {
-                        speedY *= -1;
+
                         speedX *= -1;
                         main.remove(main.getElementAt(ball.getX(), ball.getY()));
-                        if(cntIsZero()) T.cancel();
+                        cnt--;
+                        if (cntIsZero()) T.cancel();
+
                     }
-                    if (main.getElementAt(ball.getX() + ball.getWidth(), ball.getY()) != null
-                            && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY())!= rocket
+                    else if (main.getElementAt(ball.getX() + ball.getWidth(), ball.getY()) != null
+                            && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY()) != rocket
                             && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY()) != wallpaper
                             && heart1 != null && heart2 != null && heart3 != null
                             && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY()) != heart1
                             && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY()) != heart2
                             && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY()) != heart3) {
-                        speedY *= -1;
+
                         speedX *= -1;
                         main.remove(main.getElementAt(ball.getX() + ball.getWidth(), ball.getY()));
-                        if(cntIsZero()) T.cancel();
+                        cnt--;
+                        if (cntIsZero()) T.cancel();
+
                     }
-                    if (main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight()) != null
+                    else if (main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight()) != null
                             && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight()) != rocket
                             && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight()) != wallpaper
                             && heart1 != null && heart2 != null && heart3 != null
@@ -171,11 +188,12 @@ public class SecondLVL extends GraphicsProgram implements MouseListener {
                             && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight()) != heart2
                             && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight()) != heart3) {
                         speedY *= -1;
-                        speedX *= -1;
                         main.remove(main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight()));
-                        if(cntIsZero()) T.cancel();
+                        cnt--;
+
+                        if (cntIsZero()) T.cancel();
                     }
-                    if (main.getElementAt(ball.getX(), ball.getY() + ball.getHeight()) != null
+                    else if (main.getElementAt(ball.getX(), ball.getY() + ball.getHeight()) != null
                             && main.getElementAt(ball.getX(), ball.getY() + ball.getHeight()) != rocket
                             && main.getElementAt(ball.getX(), ball.getY() + ball.getHeight()) != wallpaper
                             && heart1 != null && heart2 != null && heart3 != null
@@ -183,11 +201,11 @@ public class SecondLVL extends GraphicsProgram implements MouseListener {
                             && main.getElementAt(ball.getX(), ball.getY() + ball.getHeight()) != heart2
                             && main.getElementAt(ball.getX(), ball.getY() + ball.getHeight()) != heart3) {
                         speedY *= -1;
-                        speedX *= -1;
                         main.remove(main.getElementAt(ball.getX(), ball.getY() + ball.getHeight()));
-                        if(cntIsZero()) T.cancel();
+
+                        cnt--;
+                        if (cntIsZero()) T.cancel();
                     }
-                    System.out.println(speedX + " " + speedY);
                 }
 
                 if (ball.getX() + ball.getWidth() + speedX <= main.getWidth() || ball.getX() - ball.getWidth() + speedX >= 0)
@@ -215,6 +233,7 @@ public class SecondLVL extends GraphicsProgram implements MouseListener {
                     else if(lifes == 0){
                         main.removeAll();
                         T.cancel();
+                        windowIfLost();
                     }
 
                 }
@@ -291,10 +310,24 @@ public class SecondLVL extends GraphicsProgram implements MouseListener {
         main.removeAll();
     }
 
+    private void windowIfLost(){
+        IODialog dialog = new IODialog();
+        dialog.println("На жаль, ви програли");
+        main.removeAll();
+        main.loadWindow();
+    }
+
     private boolean cntIsZero(){
         cnt--;
         if (cnt <= 0){
+            //addSound();
             main.removeAll();
+            IODialog dialog = new IODialog();
+            dialog.println("Вітаю! Ви пройшли другий рівень");
+            main.loadWindow();
+        }
+        else {
+            //addSound();
         }
         return cnt <= 0;
     }
@@ -320,5 +353,29 @@ public class SecondLVL extends GraphicsProgram implements MouseListener {
         if (mouseEvent.getX() >= 0 && mouseEvent.getX() <= main.getWidth() - this.rocket.getWidth())
             this.rocket.setLocation(mouseEvent.getX(), this.rocket.getY());
     }
-}
 
+    private void addSound() {
+        try {
+            File file = new File(pathToClip);
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(file);
+
+            clip = AudioSystem.getClip();
+            clip.open(audioIn);
+            soundLoaded = true;
+        }
+        catch (UnsupportedAudioFileException e) {
+            soundLoaded = false;
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            soundLoaded = false;
+            e.printStackTrace();
+        }
+        catch (LineUnavailableException e) {
+            soundLoaded = false;
+            e.printStackTrace();
+        }
+
+        clip.start();
+    }
+}

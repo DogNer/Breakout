@@ -5,14 +5,17 @@ import acm.graphics.GRect;
 import acm.io.IODialog;
 import acm.program.GraphicsProgram;
 
+import javax.sound.sampled.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class FirstLVL extends GraphicsProgram implements MouseListener {
+public class FirstLVL extends GraphicsProgram implements MouseListener, KeyListener {
+    private final String pathToClip = "/Users/danam/Videos/hit.wav";
     GRect wallpaper;
     public GOval ball = null;
     public static int DELAY = 10;
@@ -23,10 +26,15 @@ public class FirstLVL extends GraphicsProgram implements MouseListener {
     public GImage heart1 = null, heart2 = null, heart3 = null;
     public int speedX = 3, speedY = -4;
     private Main main;
+    private Clip clip;
+    private boolean soundLoaded;
 
     public boolean buttonPressed = false;
     private static final int NUMBEROFBRICKS = 1;
     private static final int DISTANCEBETWEENBRICKS = 1;
+
+    private TimerTask tmp = null;
+    public boolean stopKey = true;
 
     public FirstLVL(Main main) {
         this.main = main;
@@ -79,10 +87,41 @@ public class FirstLVL extends GraphicsProgram implements MouseListener {
         main.add(rocket);
         //setBall();
         main.add(ball);
+
     }
 
-    public void movementOfBall() {
 
+
+    public void movementOfBall() {
+        tmp = timerMove();
+        main.addKeyListeners(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                switch (e.getKeyCode()){
+                    case KeyEvent.VK_ESCAPE ->{
+                        System.out.println(tmp);
+                        if(tmp != null) {
+                            tmp.cancel();
+                            IODialog dialog = new IODialog();
+                            String res = dialog.readLine("Гра на паузі." + '\n' + "Хочете вийти в головне меню: ");
+
+                            if (res.equalsIgnoreCase("yes") || res.equalsIgnoreCase("1")
+                                    || res.equalsIgnoreCase("так")) {
+                                speedX = 3;
+                                speedY = -4;
+                                main.removeAll();
+                                main.loadWindow();
+                                tmp = null;
+                            } else {
+                                tmp = timerMove();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    private TimerTask timerMove(){
         Timer T = new Timer();
         TimerTask g = new TimerTask() {
             @Override
@@ -100,7 +139,7 @@ public class FirstLVL extends GraphicsProgram implements MouseListener {
                         main.remove(main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() - 1));
                         cnt--;
                         if (cntIsZero()) T.cancel();
-                        
+
                     }
 
                     //bottom
@@ -115,7 +154,7 @@ public class FirstLVL extends GraphicsProgram implements MouseListener {
                         main.remove(main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1));
                         cnt--;
                         if (cntIsZero()) T.cancel();
-                        
+
                     }
 
                     //left
@@ -130,7 +169,7 @@ public class FirstLVL extends GraphicsProgram implements MouseListener {
                         main.remove(main.getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight() / 2));
                         cnt--;
                         if (cntIsZero()) T.cancel();
-                        
+
                     }
 
                     //right
@@ -145,7 +184,7 @@ public class FirstLVL extends GraphicsProgram implements MouseListener {
                         main.remove(main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2));
                         cnt--;
                         if (cntIsZero()) T.cancel();
-                        
+
                     }
 
                     else if (main.getElementAt(ball.getX(), ball.getY()) != null
@@ -155,12 +194,12 @@ public class FirstLVL extends GraphicsProgram implements MouseListener {
                             && main.getElementAt(ball.getX(), ball.getY()) != heart1
                             && main.getElementAt(ball.getX(), ball.getY()) != heart2
                             && main.getElementAt(ball.getX(), ball.getY()) != heart3) {
-                        speedY *= -1;
+
                         speedX *= -1;
                         main.remove(main.getElementAt(ball.getX(), ball.getY()));
                         cnt--;
                         if (cntIsZero()) T.cancel();
-                        
+
                     }
                     else if (main.getElementAt(ball.getX() + ball.getWidth(), ball.getY()) != null
                             && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY()) != rocket
@@ -169,12 +208,12 @@ public class FirstLVL extends GraphicsProgram implements MouseListener {
                             && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY()) != heart1
                             && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY()) != heart2
                             && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY()) != heart3) {
-                        speedY *= -1;
+
                         speedX *= -1;
                         main.remove(main.getElementAt(ball.getX() + ball.getWidth(), ball.getY()));
                         cnt--;
                         if (cntIsZero()) T.cancel();
-                        
+
                     }
                     else if (main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight()) != null
                             && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight()) != rocket
@@ -184,10 +223,9 @@ public class FirstLVL extends GraphicsProgram implements MouseListener {
                             && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight()) != heart2
                             && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight()) != heart3) {
                         speedY *= -1;
-                        speedX *= -1;
                         main.remove(main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight()));
                         cnt--;
-                        
+
                         if (cntIsZero()) T.cancel();
                     }
                     else if (main.getElementAt(ball.getX(), ball.getY() + ball.getHeight()) != null
@@ -198,24 +236,23 @@ public class FirstLVL extends GraphicsProgram implements MouseListener {
                             && main.getElementAt(ball.getX(), ball.getY() + ball.getHeight()) != heart2
                             && main.getElementAt(ball.getX(), ball.getY() + ball.getHeight()) != heart3) {
                         speedY *= -1;
-                        speedX *= -1;
                         main.remove(main.getElementAt(ball.getX(), ball.getY() + ball.getHeight()));
 
                         cnt--;
                         if (cntIsZero()) T.cancel();
                     }
-                    System.out.println(cnt);
-
                 }
 
                 if (ball.getX() + ball.getWidth() + speedX <= main.getWidth() || ball.getX() - ball.getWidth() + speedX >= 0)
                     moveBall(speedX, speedY);
-                if (ball.getX() + ball.getWidth() + speedX >= main.getWidth() || ball.getX() + speedX <= 0)
+                if (ball.getX() + ball.getWidth() + speedX >= main.getWidth() || ball.getX() + speedX <= 0) {
+                    addSound();
                     speedX *= -1;
-
+                }
                 if (ball.getY() >= 0 && ball.getY() + speedY + ball.getHeight() <= main.getHeight())
                     moveBall(speedX, speedY);
                 if (ball.getY() + speedY <= 0) {
+                    addSound();
                     speedY *= -1;
                 }
                 if (ball.getY() + speedY + ball.getHeight() >= main.getHeight()) {
@@ -223,30 +260,33 @@ public class FirstLVL extends GraphicsProgram implements MouseListener {
                     if (lifes == 2) {
                         deleteLifes(heart3);
                         T.cancel();
+                        tmp.cancel();
                         buttonPressed = false;
                     } else if (lifes == 1) {
                         deleteLifes(heart2);
                         T.cancel();
+                        tmp.cancel();
                         buttonPressed = false;
                     } else if (lifes == 0) {
                         T.cancel();
+                        tmp.cancel();
                         windowIfLost();
                     }
-
                 }
 
                 if (isRocket(ball, speedX, speedY) || (main.getElementAt(ball.getX() + ball.getWidth() - 1, ball.getY() + ball.getHeight() + 1) != null
                         && main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() + 1) != null
                         && inCircle(ball, main.getElementAt(ball.getX() + ball.getWidth() - 1, ball.getY() + ball.getHeight() + 1))
                         && inCircle(ball, main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() + 1)))) {
+                    addSound();
                     speedY *= -1;
                 }
-
             }
         };
         T.scheduleAtFixedRate(g, 0, 30);
-    }
 
+        return g;
+    }
     public void moveBall(int speedX, int speedY) {
         ball.move(speedX, speedY);
     }
@@ -270,22 +310,27 @@ public class FirstLVL extends GraphicsProgram implements MouseListener {
         return false;
     }
 
-    private void windowIfLost(){
+    private void windowIfWin(){
         IODialog dialog = new IODialog();
-        dialog.println("Вітаю! Ви пройшли третій рівень");
+        dialog.println("Вітаю! Ви пройшли перший рівень");
         main.removeAll();
         main.loadWindow();
     }
 
+    private void windowIfLost(){
+        IODialog dialog = new IODialog();
+        dialog.println("На жаль, ви програли.");
+        main.removeAll();
+        main.loadWindow();
+    }
     private boolean cntIsZero(){
         if (cnt <= 0){
-            main.removeAll();
-
-            IODialog dialog = new IODialog();
-            dialog.println("Вітаю! Ви пройшли третій рівень");
-            main.loadWindow();
+            tmp.cancel();
+            addSound();
+            windowIfWin();
         }
-        return cnt == 0;
+        else addSound();
+        return cnt <= 0;
     }
 
     private void deleteLifes(GImage life){
@@ -297,6 +342,31 @@ public class FirstLVL extends GraphicsProgram implements MouseListener {
         speedY = -4;
     }
 
+    private void addSound(){
+        try {
+            File file = new File(pathToClip);
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(file);
+
+            clip = AudioSystem.getClip();
+            clip.open(audioIn);
+            soundLoaded = true;
+        }
+        catch (UnsupportedAudioFileException e) {
+            soundLoaded = false;
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            soundLoaded = false;
+            e.printStackTrace();
+        }
+        catch (LineUnavailableException e) {
+            soundLoaded = false;
+            e.printStackTrace();
+        }
+
+        clip.start();
+    }
+
     @Override
     public void mouseClicked(MouseEvent mouseEvent) {
         /*while (ball.getX() <= getWidth()) {
@@ -304,6 +374,7 @@ public class FirstLVL extends GraphicsProgram implements MouseListener {
             pause(DELAY);
         }*/
     }
+
 
     public void movementOfRocke(MouseEvent mouseEvent){
         if (mouseEvent.getX() >= 0 && mouseEvent.getX() <= main.getWidth() - this.rocket.getWidth())
