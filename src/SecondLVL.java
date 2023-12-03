@@ -1,21 +1,24 @@
-import acm.graphics.GImage;
-import acm.graphics.GObject;
-import acm.graphics.GOval;
-import acm.graphics.GRect;
+/**
+ * Розробити гру Breakout
+ *
+ * File: Laba
+ * Autors: Ноженко Артур, Мущенко Дана
+ */
+
+import acm.graphics.*;
 import acm.io.IODialog;
 import acm.program.GraphicsProgram;
 
 import javax.sound.sampled.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class SecondLVL extends GraphicsProgram implements MouseListener {
+public class SecondLVL extends GraphicsProgram implements MouseListener, KeyListener {
     GRect wallpaper;
     public GOval ball = null;
     public static int DELAY = 10;
@@ -28,20 +31,38 @@ public class SecondLVL extends GraphicsProgram implements MouseListener {
     private Main main;
     private Clip clip;
     private boolean soundLoaded;
-    private final String pathToClip = "hit.wav";
+    private Clip clipBack;
+    private final String pathToClip = "/Users/danam/Videos/hit.wav";
+    private final String pathToClipLostLife = "/Users/danam/Videos/lostlife.wav";
+    private final String pathToClipWin = "/Users/danam/Videos/winSound.wav";
+    private final String pathToClipBackMusic = "/Users/danam/Videos/backSounds.wav";
+    private boolean soundLoadedBack;
 
     public boolean buttonPressed = false;
+    private static final int NUMBEROFBRICKS = 1;
+    private static final int DISTANCEBETWEENBRICKS = 1;
+
+    private TimerTask tmp = null;
+    public boolean stopKey = true;
+    public GLabel pointsLabel;
+    public String pointsText = "";
+    public int points = 0;
 
     public SecondLVL(Main main) {
         this.main = main;
     }
 
+    /**
+     * метод, який додає цеглинки, ракетку, м’яч, житті
+     */
     public void gameUpload(){
+        addSoundBackSound(pathToClipBackMusic);
         main.add(wallpaper);
+        main.add(pointsLabel);
         Member brick = new Member();
         for (int j = 1; j <= 5; ++j) {
             for (int i = 0; i < 10; ++i) {
-                brick.ob = new GRect(10 + 70 * i, 100 + 15 * j, 60, 10);
+                brick.ob = new GRect(10 + 70 * i, 100 + 15 * j, 50, 10);
                 brick.index = i + 10 * (j - 1);
                 brick.ob.setFilled(true);
                 switch (j) {
@@ -78,19 +99,59 @@ public class SecondLVL extends GraphicsProgram implements MouseListener {
             main.add(heart2);
         if (heart3 != null)
             main.add(heart3);
-        //addLives();
-        //rocket();
         main.add(rocket);
-        //setBall();
         main.add(ball);
+
     }
 
-    public void movementOfBall(){
 
-        Timer T = new Timer();
-        TimerTask g = new TimerTask(){
+    /**
+     * метод, що дозволяє ставити гру на паузу
+     */
+    public void movementOfBall() {
+        tmp = timerMove();
+        main.addKeyListeners(new KeyAdapter() {
             @Override
-            public void run(){
+            public void keyPressed(KeyEvent e) {
+                switch (e.getKeyCode()){
+                    case KeyEvent.VK_ESCAPE ->{
+                        if(tmp != null) {
+                            tmp.cancel();
+                            tmp = null;
+                            long clipTimePos = clipBack.getMicrosecondPosition();
+                            clipBack.stop();
+
+                            IODialog dialog = new IODialog();
+                            String res = dialog.readLine("Гра на паузі." + '\n' + "Хочете вийти в головне меню? 1 - Так, 0 - Ні");
+
+                            if (res.equalsIgnoreCase("yes") || res.equalsIgnoreCase("1")
+                                    || res.equalsIgnoreCase("так")) {
+                                speedX = 3;
+                                speedY = -4;
+                                main.removeAll();
+                                main.loadWindow();
+                                buttonPressed = false;
+                            } else {
+                                clipBack.setMicrosecondPosition(clipTimePos);
+                                clipBack.start();
+                                buttonPressed = false;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * метод, що описує логіку гри і дозволяє ставити гру на паузу
+     * @return значення таймеру
+     */
+    private TimerTask timerMove(){
+        Timer T = new Timer();
+        TimerTask g = new TimerTask() {
+            @Override
+            public void run() {
                 if (ball.getY() <= rocket.getY()) {
                     //top
                     if (main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() - 1) != null
@@ -99,10 +160,13 @@ public class SecondLVL extends GraphicsProgram implements MouseListener {
                             && heart1 != null && heart2 != null && heart3 != null
                             && main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() - 1) != heart1
                             && main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() - 1) != heart2
-                            && main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() - 1) != heart3) {
+                            && main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() - 1) != heart3
+                            && main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() - 1) != pointsLabel) {
                         speedY *= -1;
                         main.remove(main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() - 1));
                         cnt--;
+                        points += 1;
+                        changePoints();
                         if (cntIsZero()) T.cancel();
 
                     }
@@ -114,10 +178,13 @@ public class SecondLVL extends GraphicsProgram implements MouseListener {
                             && heart1 != null && heart2 != null && heart3 != null
                             && main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1) != heart1
                             && main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1) != heart2
-                            && main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1) != heart3) {
+                            && main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1) != heart3
+                            && main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1) != pointsLabel) {
                         speedY *= -1;
                         main.remove(main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1));
                         cnt--;
+                        points += 1;
+                        changePoints();
                         if (cntIsZero()) T.cancel();
 
                     }
@@ -129,10 +196,13 @@ public class SecondLVL extends GraphicsProgram implements MouseListener {
                             && heart1 != null && heart2 != null && heart3 != null
                             && main.getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight() / 2) != heart1
                             && main.getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight() / 2) != heart2
-                            && main.getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight() / 2) != heart3) {
+                            && main.getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight() / 2) != heart3
+                            && main.getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight() / 2) != pointsLabel) {
                         speedX *= -1;
                         main.remove(main.getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight() / 2));
                         cnt--;
+                        points += 1;
+                        changePoints();
                         if (cntIsZero()) T.cancel();
 
                     }
@@ -144,10 +214,13 @@ public class SecondLVL extends GraphicsProgram implements MouseListener {
                             && heart1 != null && heart2 != null && heart3 != null
                             && main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != heart1
                             && main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != heart2
-                            && main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != heart3) {
+                            && main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != heart3
+                            && main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != pointsLabel) {
                         speedX *= -1;
                         main.remove(main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2));
                         cnt--;
+                        points += 1;
+                        changePoints();
                         if (cntIsZero()) T.cancel();
 
                     }
@@ -158,11 +231,14 @@ public class SecondLVL extends GraphicsProgram implements MouseListener {
                             && heart1 != null && heart2 != null && heart3 != null
                             && main.getElementAt(ball.getX(), ball.getY()) != heart1
                             && main.getElementAt(ball.getX(), ball.getY()) != heart2
-                            && main.getElementAt(ball.getX(), ball.getY()) != heart3) {
+                            && main.getElementAt(ball.getX(), ball.getY()) != heart3
+                            && main.getElementAt(ball.getX(), ball.getY()) != pointsLabel) {
 
                         speedX *= -1;
                         main.remove(main.getElementAt(ball.getX(), ball.getY()));
                         cnt--;
+                        points += 1;
+                        changePoints();
                         if (cntIsZero()) T.cancel();
 
                     }
@@ -172,11 +248,14 @@ public class SecondLVL extends GraphicsProgram implements MouseListener {
                             && heart1 != null && heart2 != null && heart3 != null
                             && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY()) != heart1
                             && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY()) != heart2
-                            && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY()) != heart3) {
+                            && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY()) != heart3
+                            && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY()) != pointsLabel) {
 
                         speedX *= -1;
                         main.remove(main.getElementAt(ball.getX() + ball.getWidth(), ball.getY()));
                         cnt--;
+                        points += 1;
+                        changePoints();
                         if (cntIsZero()) T.cancel();
 
                     }
@@ -186,10 +265,13 @@ public class SecondLVL extends GraphicsProgram implements MouseListener {
                             && heart1 != null && heart2 != null && heart3 != null
                             && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight()) != heart1
                             && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight()) != heart2
-                            && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight()) != heart3) {
+                            && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight()) != heart3
+                            && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight()) != pointsLabel) {
                         speedY *= -1;
                         main.remove(main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight()));
                         cnt--;
+                        points += 1;
+                        changePoints();
 
                         if (cntIsZero()) T.cancel();
                     }
@@ -199,94 +281,79 @@ public class SecondLVL extends GraphicsProgram implements MouseListener {
                             && heart1 != null && heart2 != null && heart3 != null
                             && main.getElementAt(ball.getX(), ball.getY() + ball.getHeight()) != heart1
                             && main.getElementAt(ball.getX(), ball.getY() + ball.getHeight()) != heart2
-                            && main.getElementAt(ball.getX(), ball.getY() + ball.getHeight()) != heart3) {
+                            && main.getElementAt(ball.getX(), ball.getY() + ball.getHeight()) != heart3
+                            && main.getElementAt(ball.getX(), ball.getY() + ball.getHeight()) != pointsLabel) {
                         speedY *= -1;
                         main.remove(main.getElementAt(ball.getX(), ball.getY() + ball.getHeight()));
-
                         cnt--;
+                        points += 1;
+                        changePoints();
                         if (cntIsZero()) T.cancel();
                     }
                 }
 
                 if (ball.getX() + ball.getWidth() + speedX <= main.getWidth() || ball.getX() - ball.getWidth() + speedX >= 0)
                     moveBall(speedX, speedY);
-                if (ball.getX() + ball.getWidth() + speedX >= main.getWidth() || ball.getX() + speedX <= 0)
+                if (ball.getX() + ball.getWidth() + speedX >= main.getWidth() || ball.getX() + speedX <= 0) {
+                    addSound(pathToClip);
                     speedX *= -1;
-
+                }
                 if (ball.getY() >= 0 && ball.getY() + speedY + ball.getHeight() <= main.getHeight())
                     moveBall(speedX, speedY);
                 if (ball.getY() + speedY <= 0) {
+                    addSound(pathToClip);
                     speedY *= -1;
                 }
                 if (ball.getY() + speedY + ball.getHeight() >= main.getHeight()) {
                     lifes--;
-                    if (lifes == 2){
+                    if (tmp != null) {
+                        tmp.cancel();
+                        tmp = null;
+                    }
+                    if (lifes == 2) {
                         deleteLifes(heart3);
                         T.cancel();
                         buttonPressed = false;
-                    }
-                    else if (lifes == 1){
+                    } else if (lifes == 1) {
                         deleteLifes(heart2);
                         T.cancel();
                         buttonPressed = false;
-                    }
-                    else if(lifes == 0){
-                        main.removeAll();
+                    } else if (lifes == 0) {
                         T.cancel();
                         windowIfLost();
                     }
-
                 }
 
                 if (isRocket(ball, speedX, speedY) || (main.getElementAt(ball.getX() + ball.getWidth() - 1, ball.getY() + ball.getHeight() + 1) != null
                         && main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() + 1) != null
                         && inCircle(ball, main.getElementAt(ball.getX() + ball.getWidth() - 1, ball.getY() + ball.getHeight() + 1))
                         && inCircle(ball, main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() + 1)))) {
+                    addSound(pathToClip);
                     speedY *= -1;
                 }
-
             }
         };
         T.scheduleAtFixedRate(g, 0, 30);
-    }
-    public void addLives(){
-        heart1 = new GImage("heart.png");
-        heart2 = new GImage("heart.png");
-        heart3 = new GImage("heart.png");
-        heart1.scale(0.1);
-        heart2.scale(0.1);
-        heart3.scale(0.1);
-        main.add(heart1, 10, 10);
-        main.add(heart2, 20 + heart1.getWidth(), 10);
-        main.add(heart3, 30 + heart1.getWidth() * 2, 10);
+
+        return g;
     }
 
-    public void wallPaper() {
-        wallpaper = new GRect(0, 0, 710, 700);
-        wallpaper.setFilled(true);
-        wallpaper.setColor(Color.decode("#efe6d6"));
-        main.add(wallpaper);
-    }
-
-    public GRect getRocket() {
-        return rocket;
-    }
-
-    public void setRocket(GRect rocket) {
-        this.rocket = rocket;
-    }
-
-    public void setBall() {
-        ball = new GOval(0,0, 30,30);
-        ball.setFilled(true);
-        ball.setColor(Color.decode("#9C4A1A"));
-        main.add(ball, 342, 300);
-    }
-
+    /**
+     * метод, що рухає м’яч
+     * @param speedX  значення швидкості по Х
+     * @param speedY  значення швидкості по У
+     */
     public void moveBall(int speedX, int speedY) {
         ball.move(speedX, speedY);
     }
 
+    /**
+     * метод, що перевіряє зіткнення м’яча та ракетки
+     * @param im значення м’яча
+     * @param speedX координати м’яча по х
+     * @param speedY координати м’яча по у
+     * @return чи м'яч стикається з ракеткою
+     */
     private boolean isRocket(GObject im, int speedX, int speedY){
         //bottom
         if (main.getElementAt(im.getX() + im.getWidth() / 2 + speedX, im.getY() + im.getHeight() + 1 + speedY) == rocket)
@@ -299,6 +366,12 @@ public class SecondLVL extends GraphicsProgram implements MouseListener {
         return false;
     }
 
+    /**
+     * метод, що перевіряє зіткнення м’яча з якимось об’єктом
+     * @param balls значення м’яча
+     * @param getOb значення об’єкта
+     * @return чи м'яч стикається з об’єктом
+     */
     private boolean inCircle(GOval balls, GObject getOb){
         double ballX = balls.getX() - 8, ballY = balls.getY() - 8;
         if (getOb != null && getOb != wallpaper && getOb != heart1 && getOb != heart2 && getOb != heart3)
@@ -306,33 +379,50 @@ public class SecondLVL extends GraphicsProgram implements MouseListener {
         return false;
     }
 
-    private void stopGameBad(){
-        main.removeAll();
-    }
-
-    private void windowIfLost(){
+    /**
+     * метод, що виводить діалогове вікно при перемозі
+     */
+    private void windowIfWin(){
         IODialog dialog = new IODialog();
-        dialog.println("На жаль, ви програли");
+        dialog.println("Вітаю! Ви пройшли перший рівень");
         main.removeAll();
         main.loadWindow();
     }
 
+    /**
+     * метод, що виводить діалогове вікно при поразці
+     */
+    private void windowIfLost(){
+        clipBack.stop();
+        addSound(pathToClipLostLife);
+        IODialog dialog = new IODialog();
+        dialog.println("На жаль, ви програли.");
+        main.removeAll();
+        main.loadWindow();
+    }
+
+    /**
+     * метод, що перевіряє, чи залишились ще цеглинки
+     * @return чи залишились цеглинки
+     */
     private boolean cntIsZero(){
-        cnt--;
         if (cnt <= 0){
-            //addSound();
-            main.removeAll();
-            IODialog dialog = new IODialog();
-            dialog.println("Вітаю! Ви пройшли другий рівень");
-            main.loadWindow();
+            tmp.cancel();
+            addSound(pathToClip);
+            addSound(pathToClipWin);
+            clipBack.stop();
+            windowIfWin();
         }
-        else {
-            //addSound();
-        }
+        else addSound(pathToClip);
         return cnt <= 0;
     }
 
+    /**
+     * метод, що видаляє життя, коли ми його втратили
+     * @param life зображення життя
+     */
     private void deleteLifes(GImage life){
+        addSound(pathToClipLostLife);
         main.remove(life);
         rocket.setLocation(310, 600);
         ball.setLocation(342, 300);
@@ -341,24 +431,14 @@ public class SecondLVL extends GraphicsProgram implements MouseListener {
         speedY = -4;
     }
 
-    @Override
-    public void mouseClicked(MouseEvent mouseEvent) {
-        /*while (ball.getX() <= getWidth()) {
-            moveBall();
-            pause(DELAY);
-        }*/
-    }
-
-    public void movementOfRocke(MouseEvent mouseEvent){
-        if (mouseEvent.getX() >= 0 && mouseEvent.getX() <= main.getWidth() - this.rocket.getWidth())
-            this.rocket.setLocation(mouseEvent.getX(), this.rocket.getY());
-    }
-
-    private void addSound() {
+    /**
+     * метод, що додає звукові ефекти
+     * @param path шлях до файлу з музикою
+     */
+    private void addSound(String path) {
         try {
-            File file = new File(pathToClip);
+            File file = new File(path);
             AudioInputStream audioIn = AudioSystem.getAudioInputStream(file);
-
             clip = AudioSystem.getClip();
             clip.open(audioIn);
             soundLoaded = true;
@@ -378,4 +458,55 @@ public class SecondLVL extends GraphicsProgram implements MouseListener {
 
         clip.start();
     }
+
+    /**
+     * метод, що додає музику на задній план
+     * @param path шлях до файлу з музикою
+     */
+    private void addSoundBackSound(String path) {
+        try {
+            File file = new File(path);
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(file);
+            clipBack = AudioSystem.getClip();
+            clipBack.open(audioIn);
+            soundLoadedBack = true;
+        }
+        catch (UnsupportedAudioFileException e) {
+            soundLoadedBack = false;
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            soundLoadedBack = false;
+            e.printStackTrace();
+        }
+        catch (LineUnavailableException e) {
+            soundLoadedBack = false;
+            e.printStackTrace();
+        }
+
+        clipBack.start();
+    }
+
+
+    /**
+     * метод, що не дозволяє ракетці виходити за межі вікна
+     * @param mouseEvent
+     */
+    public void movementOfRocke(MouseEvent mouseEvent){
+        if (mouseEvent.getX() >= 0 && mouseEvent.getX() <= main.getWidth() - this.rocket.getWidth())
+            this.rocket.setLocation(mouseEvent.getX(), this.rocket.getY());
+    }
+
+    /**
+     * лічильник збитих цеглинок
+     */
+    public void changePoints() {
+        main.remove(pointsLabel);
+        pointsText = "" + points;
+        pointsLabel = new GLabel(pointsText, 665, 30);
+        pointsLabel.setFont("Arial-40");
+        pointsLabel.setColor(Color.RED);
+        main.add(pointsLabel);
+    }
 }
+

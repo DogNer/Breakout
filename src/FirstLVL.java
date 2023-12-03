@@ -1,7 +1,11 @@
-import acm.graphics.GImage;
-import acm.graphics.GObject;
-import acm.graphics.GOval;
-import acm.graphics.GRect;
+/**
+ * Розробити гру Breakout
+ *
+ * File: Laba
+ * Autors: Ноженко Артур, Мущенко Дана
+ */
+
+import acm.graphics.*;
 import acm.io.IODialog;
 import acm.program.GraphicsProgram;
 
@@ -10,12 +14,10 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class FirstLVL extends GraphicsProgram implements MouseListener, KeyListener {
-    private final String pathToClip = "/Users/danam/Videos/hit.wav";
     GRect wallpaper;
     public GOval ball = null;
     public static int DELAY = 10;
@@ -28,6 +30,12 @@ public class FirstLVL extends GraphicsProgram implements MouseListener, KeyListe
     private Main main;
     private Clip clip;
     private boolean soundLoaded;
+    private Clip clipBack;
+    private final String pathToClip = "/Users/danam/Videos/hit.wav";
+    private final String pathToClipLostLife = "/Users/danam/Videos/lostlife.wav";
+    private final String pathToClipWin = "/Users/danam/Videos/winSound.wav";
+    private final String pathToClipBackMusic = "/Users/danam/Videos/backSounds.wav";
+    private boolean soundLoadedBack;
 
     public boolean buttonPressed = false;
     private static final int NUMBEROFBRICKS = 1;
@@ -35,17 +43,25 @@ public class FirstLVL extends GraphicsProgram implements MouseListener, KeyListe
 
     private TimerTask tmp = null;
     public boolean stopKey = true;
+    public int points = 0;
+    public GLabel pointsLabel;
+    public String pointsText = "";
 
     public FirstLVL(Main main) {
         this.main = main;
     }
 
+    /**
+     * метод, який додає цеглинки, ракетку, м’яч, житті
+     */
     public void gameUpload(){
+        addSoundBackSound(pathToClipBackMusic);
         main.add(wallpaper);
+        main.add(pointsLabel);
         Member brick = new Member();
-        for (int j = 1; j <= 2; ++j) {
-            for (int i = 0; i < NUMBEROFBRICKS; ++i) {
-                brick.ob = new GRect(DISTANCEBETWEENBRICKS * (i+1) + (((double) main.getWidth() - DISTANCEBETWEENBRICKS * (NUMBEROFBRICKS + 1)) / NUMBEROFBRICKS) * i, 100 + 28 * j, (((double) main.getWidth() - DISTANCEBETWEENBRICKS * (NUMBEROFBRICKS + 1)) / 5), 25);
+        for (int j = 1; j <= 5; ++j) {
+            for (int i = 0; i < 5; ++i) {
+                brick.ob = new GRect(10 + 140 * i, 100 + 15 * j, 130, 10);
                 brick.index = i + 10 * (j - 1);
                 brick.ob.setFilled(true);
                 switch (j) {
@@ -82,16 +98,15 @@ public class FirstLVL extends GraphicsProgram implements MouseListener, KeyListe
             main.add(heart2);
         if (heart3 != null)
             main.add(heart3);
-        //addLives();
-        //rocket();
         main.add(rocket);
-        //setBall();
         main.add(ball);
 
     }
 
 
-
+    /**
+     * метод, що дозволяє ставити гру на паузу
+     */
     public void movementOfBall() {
         tmp = timerMove();
         main.addKeyListeners(new KeyAdapter() {
@@ -99,11 +114,14 @@ public class FirstLVL extends GraphicsProgram implements MouseListener, KeyListe
             public void keyPressed(KeyEvent e) {
                 switch (e.getKeyCode()){
                     case KeyEvent.VK_ESCAPE ->{
-                        System.out.println(tmp);
                         if(tmp != null) {
                             tmp.cancel();
+                            tmp = null;
+                            long clipTimePos = clipBack.getMicrosecondPosition();
+                            clipBack.stop();
+
                             IODialog dialog = new IODialog();
-                            String res = dialog.readLine("Гра на паузі." + '\n' + "Хочете вийти в головне меню: ");
+                            String res = dialog.readLine("Гра на паузі." + '\n' + "Хочете вийти в головне меню? 1 - Так, 0 - Ні");
 
                             if (res.equalsIgnoreCase("yes") || res.equalsIgnoreCase("1")
                                     || res.equalsIgnoreCase("так")) {
@@ -111,9 +129,11 @@ public class FirstLVL extends GraphicsProgram implements MouseListener, KeyListe
                                 speedY = -4;
                                 main.removeAll();
                                 main.loadWindow();
-                                tmp = null;
+                                buttonPressed = false;
                             } else {
-                                tmp = timerMove();
+                                clipBack.setMicrosecondPosition(clipTimePos);
+                                clipBack.start();
+                                buttonPressed = false;
                             }
                         }
                     }
@@ -121,6 +141,11 @@ public class FirstLVL extends GraphicsProgram implements MouseListener, KeyListe
             }
         });
     }
+
+    /**
+     * метод, що описує логіку гри і дозволяє ставити гру на паузу
+     * @return значення таймеру
+     */
     private TimerTask timerMove(){
         Timer T = new Timer();
         TimerTask g = new TimerTask() {
@@ -134,10 +159,13 @@ public class FirstLVL extends GraphicsProgram implements MouseListener, KeyListe
                             && heart1 != null && heart2 != null && heart3 != null
                             && main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() - 1) != heart1
                             && main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() - 1) != heart2
-                            && main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() - 1) != heart3) {
+                            && main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() - 1) != heart3
+                            && main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() - 1) != pointsLabel) {
                         speedY *= -1;
                         main.remove(main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() - 1));
                         cnt--;
+                        points += 1;
+                        changePoints();
                         if (cntIsZero()) T.cancel();
 
                     }
@@ -149,10 +177,13 @@ public class FirstLVL extends GraphicsProgram implements MouseListener, KeyListe
                             && heart1 != null && heart2 != null && heart3 != null
                             && main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1) != heart1
                             && main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1) != heart2
-                            && main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1) != heart3) {
+                            && main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1) != heart3
+                            && main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1) != pointsLabel) {
                         speedY *= -1;
                         main.remove(main.getElementAt(ball.getX() + ball.getWidth() / 2, ball.getY() + ball.getHeight() + 1));
                         cnt--;
+                        points += 1;
+                        changePoints();
                         if (cntIsZero()) T.cancel();
 
                     }
@@ -164,10 +195,13 @@ public class FirstLVL extends GraphicsProgram implements MouseListener, KeyListe
                             && heart1 != null && heart2 != null && heart3 != null
                             && main.getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight() / 2) != heart1
                             && main.getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight() / 2) != heart2
-                            && main.getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight() / 2) != heart3) {
+                            && main.getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight() / 2) != heart3
+                            && main.getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight() / 2) != pointsLabel) {
                         speedX *= -1;
                         main.remove(main.getElementAt(ball.getX() - 1, ball.getY() + ball.getHeight() / 2));
                         cnt--;
+                        points += 1;
+                        changePoints();
                         if (cntIsZero()) T.cancel();
 
                     }
@@ -179,10 +213,13 @@ public class FirstLVL extends GraphicsProgram implements MouseListener, KeyListe
                             && heart1 != null && heart2 != null && heart3 != null
                             && main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != heart1
                             && main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != heart2
-                            && main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != heart3) {
+                            && main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != heart3
+                            && main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2) != pointsLabel) {
                         speedX *= -1;
                         main.remove(main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() / 2));
                         cnt--;
+                        points += 1;
+                        changePoints();
                         if (cntIsZero()) T.cancel();
 
                     }
@@ -193,11 +230,14 @@ public class FirstLVL extends GraphicsProgram implements MouseListener, KeyListe
                             && heart1 != null && heart2 != null && heart3 != null
                             && main.getElementAt(ball.getX(), ball.getY()) != heart1
                             && main.getElementAt(ball.getX(), ball.getY()) != heart2
-                            && main.getElementAt(ball.getX(), ball.getY()) != heart3) {
+                            && main.getElementAt(ball.getX(), ball.getY()) != heart3
+                            && main.getElementAt(ball.getX(), ball.getY()) != pointsLabel) {
 
                         speedX *= -1;
                         main.remove(main.getElementAt(ball.getX(), ball.getY()));
                         cnt--;
+                        points += 1;
+                        changePoints();
                         if (cntIsZero()) T.cancel();
 
                     }
@@ -207,11 +247,14 @@ public class FirstLVL extends GraphicsProgram implements MouseListener, KeyListe
                             && heart1 != null && heart2 != null && heart3 != null
                             && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY()) != heart1
                             && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY()) != heart2
-                            && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY()) != heart3) {
+                            && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY()) != heart3
+                            && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY()) != pointsLabel) {
 
                         speedX *= -1;
                         main.remove(main.getElementAt(ball.getX() + ball.getWidth(), ball.getY()));
                         cnt--;
+                        points += 1;
+                        changePoints();
                         if (cntIsZero()) T.cancel();
 
                     }
@@ -221,10 +264,13 @@ public class FirstLVL extends GraphicsProgram implements MouseListener, KeyListe
                             && heart1 != null && heart2 != null && heart3 != null
                             && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight()) != heart1
                             && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight()) != heart2
-                            && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight()) != heart3) {
+                            && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight()) != heart3
+                            && main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight()) != pointsLabel) {
                         speedY *= -1;
                         main.remove(main.getElementAt(ball.getX() + ball.getWidth(), ball.getY() + ball.getHeight()));
                         cnt--;
+                        points += 1;
+                        changePoints();
 
                         if (cntIsZero()) T.cancel();
                     }
@@ -234,11 +280,13 @@ public class FirstLVL extends GraphicsProgram implements MouseListener, KeyListe
                             && heart1 != null && heart2 != null && heart3 != null
                             && main.getElementAt(ball.getX(), ball.getY() + ball.getHeight()) != heart1
                             && main.getElementAt(ball.getX(), ball.getY() + ball.getHeight()) != heart2
-                            && main.getElementAt(ball.getX(), ball.getY() + ball.getHeight()) != heart3) {
+                            && main.getElementAt(ball.getX(), ball.getY() + ball.getHeight()) != heart3
+                            && main.getElementAt(ball.getX(), ball.getY() + ball.getHeight()) != pointsLabel) {
                         speedY *= -1;
                         main.remove(main.getElementAt(ball.getX(), ball.getY() + ball.getHeight()));
-
                         cnt--;
+                        points += 1;
+                        changePoints();
                         if (cntIsZero()) T.cancel();
                     }
                 }
@@ -246,30 +294,31 @@ public class FirstLVL extends GraphicsProgram implements MouseListener, KeyListe
                 if (ball.getX() + ball.getWidth() + speedX <= main.getWidth() || ball.getX() - ball.getWidth() + speedX >= 0)
                     moveBall(speedX, speedY);
                 if (ball.getX() + ball.getWidth() + speedX >= main.getWidth() || ball.getX() + speedX <= 0) {
-                    addSound();
+                    addSound(pathToClip);
                     speedX *= -1;
                 }
                 if (ball.getY() >= 0 && ball.getY() + speedY + ball.getHeight() <= main.getHeight())
                     moveBall(speedX, speedY);
                 if (ball.getY() + speedY <= 0) {
-                    addSound();
+                    addSound(pathToClip);
                     speedY *= -1;
                 }
                 if (ball.getY() + speedY + ball.getHeight() >= main.getHeight()) {
                     lifes--;
+                    if (tmp != null) {
+                        tmp.cancel();
+                        tmp = null;
+                    }
                     if (lifes == 2) {
                         deleteLifes(heart3);
                         T.cancel();
-                        tmp.cancel();
                         buttonPressed = false;
                     } else if (lifes == 1) {
                         deleteLifes(heart2);
                         T.cancel();
-                        tmp.cancel();
                         buttonPressed = false;
                     } else if (lifes == 0) {
                         T.cancel();
-                        tmp.cancel();
                         windowIfLost();
                     }
                 }
@@ -278,7 +327,7 @@ public class FirstLVL extends GraphicsProgram implements MouseListener, KeyListe
                         && main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() + 1) != null
                         && inCircle(ball, main.getElementAt(ball.getX() + ball.getWidth() - 1, ball.getY() + ball.getHeight() + 1))
                         && inCircle(ball, main.getElementAt(ball.getX() + ball.getWidth() + 1, ball.getY() + ball.getHeight() + 1)))) {
-                    addSound();
+                    addSound(pathToClip);
                     speedY *= -1;
                 }
             }
@@ -287,11 +336,25 @@ public class FirstLVL extends GraphicsProgram implements MouseListener, KeyListe
 
         return g;
     }
+
+    /**
+     * метод, що рухає м’яч
+     * @param speedX  значення швидкості по Х
+     * @param speedY  значення швидкості по У
+     */
     public void moveBall(int speedX, int speedY) {
         ball.move(speedX, speedY);
     }
 
-    private boolean isRocket(GObject im, int speedX, int speedY){
+
+    /**
+     * метод, що перевіряє зіткнення м’яча та ракетки
+     * @param im значення м’яча
+     * @param speedX координати м’яча по х
+     * @param speedY координати м’яча по у
+     * @return чи м'яч стикається з ракеткою
+     */
+    private boolean isRocket(GObject im, int speedX, int speedY) {
         //bottom
         if (main.getElementAt(im.getX() + im.getWidth() / 2 + speedX, im.getY() + im.getHeight() + 1 + speedY) == rocket)
             return true;
@@ -303,6 +366,13 @@ public class FirstLVL extends GraphicsProgram implements MouseListener, KeyListe
         return false;
     }
 
+
+    /**
+     * метод, що перевіряє зіткнення м’яча з якимось об’єктом
+     * @param balls значення м’яча
+     * @param getOb значення об’єкта
+     * @return чи м'яч стикається з об’єктом
+     */
     private boolean inCircle(GOval balls, GObject getOb){
         double ballX = balls.getX() - 8, ballY = balls.getY() - 8;
         if (getOb != null && getOb != wallpaper && getOb != heart1 && getOb != heart2 && getOb != heart3)
@@ -310,30 +380,50 @@ public class FirstLVL extends GraphicsProgram implements MouseListener, KeyListe
         return false;
     }
 
-    private void windowIfWin(){
+    /**
+     * метод, що виводить діалогове вікно при перемозі
+     */
+    private void windowIfWin() {
         IODialog dialog = new IODialog();
         dialog.println("Вітаю! Ви пройшли перший рівень");
         main.removeAll();
         main.loadWindow();
     }
 
-    private void windowIfLost(){
+    /**
+     * метод, що виводить діалогове вікно при поразці
+     */
+    private void windowIfLost() {
+        clipBack.stop();
+        addSound(pathToClipLostLife);
         IODialog dialog = new IODialog();
         dialog.println("На жаль, ви програли.");
         main.removeAll();
         main.loadWindow();
     }
-    private boolean cntIsZero(){
+
+    /**
+     * метод, що перевіряє, чи залишились ще цеглинки
+     * @return чи залишились цеглинки
+     */
+    private boolean cntIsZero() {
         if (cnt <= 0){
             tmp.cancel();
-            addSound();
+            addSound(pathToClip);
+            addSound(pathToClipWin);
+            clipBack.stop();
             windowIfWin();
         }
-        else addSound();
+        else addSound(pathToClip);
         return cnt <= 0;
     }
 
-    private void deleteLifes(GImage life){
+    /**
+     * метод, що видаляє життя, коли ми його втратили
+     * @param life зображення життя
+     */
+    private void deleteLifes(GImage life) {
+        addSound(pathToClipLostLife);
         main.remove(life);
         rocket.setLocation(310, 600);
         ball.setLocation(342, 300);
@@ -342,11 +432,14 @@ public class FirstLVL extends GraphicsProgram implements MouseListener, KeyListe
         speedY = -4;
     }
 
-    private void addSound(){
+    /**
+     * метод, що додає звукові ефекти
+     * @param path шлях до файлу з музикою
+     */
+    private void addSound(String path) {
         try {
-            File file = new File(pathToClip);
+            File file = new File(path);
             AudioInputStream audioIn = AudioSystem.getAudioInputStream(file);
-
             clip = AudioSystem.getClip();
             clip.open(audioIn);
             soundLoaded = true;
@@ -367,18 +460,58 @@ public class FirstLVL extends GraphicsProgram implements MouseListener, KeyListe
         clip.start();
     }
 
-    @Override
-    public void mouseClicked(MouseEvent mouseEvent) {
-        /*while (ball.getX() <= getWidth()) {
-            moveBall();
-            pause(DELAY);
-        }*/
+
+    /**
+     * метод, що додає музику на задній план
+     * @param path шлях до файлу з музикою
+     */
+    private void addSoundBackSound(String path) {
+        try {
+            File file = new File(path);
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(file);
+            clipBack = AudioSystem.getClip();
+            clipBack.open(audioIn);
+            soundLoadedBack = true;
+        }
+        catch (UnsupportedAudioFileException e) {
+            soundLoadedBack = false;
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            soundLoadedBack = false;
+            e.printStackTrace();
+        }
+        catch (LineUnavailableException e) {
+            soundLoadedBack = false;
+            e.printStackTrace();
+        }
+
+        clipBack.start();
     }
 
 
+    /**
+     * метод, що не дозволяє ракетці виходити за межі вікна
+     * @param mouseEvent
+     */
     public void movementOfRocke(MouseEvent mouseEvent){
         if (mouseEvent.getX() >= 0 && mouseEvent.getX() <= main.getWidth() - this.rocket.getWidth())
             this.rocket.setLocation(mouseEvent.getX(), this.rocket.getY());
     }
+
+    /**
+     * лічильник збитих цеглинок
+     */
+    public void changePoints() {
+        main.remove(pointsLabel);
+        pointsText = "" + points;
+        pointsLabel = new GLabel(pointsText, 665, 30);
+        pointsLabel.setFont("Arial-40");
+        pointsLabel.setColor(Color.RED);
+        main.add(pointsLabel);
+    }
+
+
 }
+
 

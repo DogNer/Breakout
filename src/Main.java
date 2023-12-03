@@ -1,3 +1,10 @@
+/**
+ * Розробити гру Breakout
+ *
+ * File: Laba
+ * Autors: Ноженко Артур, Мущенко Дана
+ */
+
 import acm.graphics.*;
 import acm.io.IODialog;
 import acm.program.GraphicsProgram;
@@ -19,9 +26,10 @@ public class Main extends GraphicsProgram implements MouseListener{
     private int cnt = 0;
     private int lifes = 3;
     private GImage heart1, heart2, heart3;
+    public int points = 0;
+    public GLabel pointsLabel;
 
     public void run() {
-        //gameUpload();
         loadWindow();
         IODialog dialog = new IODialog();
         dialog.println("Вітаємо Вас у грі \"Breakout\"! \n " +
@@ -31,11 +39,16 @@ public class Main extends GraphicsProgram implements MouseListener{
                 "\nУправління: " +
                 "\n В головному меню оберіть рівень, натиснувши два рази на кнопку рівня." +
                 "\n Натисніть на м'ячик, щоб розпочати гру." +
-                "\n Затисніть кнопку на ракетці і рухайте мишкою, щоб керувати ракеткою");
+                "\n Затисніть кнопку на ракетці і рухайте мишкою, щоб керувати ракеткою" +
+                "\n Натисніть esc, щоб поставити гру на паузу" +
+                "\n Розробники: Мущенко Дана та Ноженко Артур");
 
 
     }
 
+    /**
+     * запускає стартове меню
+     */
     public void loadWindow(){
         this.setSize(500, 500);
         StartMenu inter = new StartMenu(this);
@@ -78,13 +91,19 @@ public class Main extends GraphicsProgram implements MouseListener{
         });
     }
 
+
+    /**
+     * запускає перший рівень
+     */
     public void gameUploadMain(){
         this.setSize(710 + 16, 700 + 60);
         FirstLVL f = new FirstLVL(this);
         int cntL = f.lifes;
+        int pointsL = f.points;
         f.rocket = rocket();
         f.ball = setBall(26);
         f.wallpaper = wallPaper();
+        f.pointsLabel = addPoints1(f, pointsL);
         addLives(f, cntL);
         if (cntL == 3)
             f.gameUpload();
@@ -104,14 +123,19 @@ public class Main extends GraphicsProgram implements MouseListener{
         });
     }
 
+    /**
+     * запускає другий рівень
+     */
     public void gameUploadMain2(){
         this.setSize(710 + 16, 700 + 60);
 
         SecondLVL f = new SecondLVL(this);
         int cntL = f.lifes;
+        int pointsL = f.points;
         f.rocket = rocket();
-        f.ball = setBall(26);
+        f.ball = setBall(18);
         f.wallpaper = wallPaper();
+        f.pointsLabel = addPoints2(f, pointsL);
         addLives2(f, cntL);
         if (cntL == 3)
             f.gameUpload();
@@ -131,13 +155,18 @@ public class Main extends GraphicsProgram implements MouseListener{
         });
     }
 
+    /**
+     * запускає третій  рівень
+     */
     public void gameUploadMain3(){
         this.setSize(710 + 16, 700 + 60);
         ThirdLVL f = new ThirdLVL(this);
         int cntL = f.lifes;
+        int pointsL = f.points;
         f.rocket = rocket();
         f.ball = setBall(16);
         f.wallpaper = wallPaper();
+        f.pointsLabel = addPoints3(f, pointsL);
         addLives3(f, cntL);
         if (cntL == 3)
             f.gameUpload();
@@ -146,7 +175,6 @@ public class Main extends GraphicsProgram implements MouseListener{
             public void mouseClicked(MouseEvent e) {
                 if (!f.buttonPressed) {
                     f.movementOfBall();
-                    f.genBomb();
                     f.buttonPressed = true;
                 }
             }
@@ -158,9 +186,13 @@ public class Main extends GraphicsProgram implements MouseListener{
         });
     }
 
+    /**
+     * додає життя для першого рівня
+     * @param f об'єкт класу FirstLVL
+     * @param cnt кількість життів
+     */
     private void addLives(FirstLVL f, int cnt){
         heart1 = new GImage("heart.png", 10, 10);
-        System.out.println(heart1.getWidth());
         heart2 = new GImage("heart.png");
         heart3 = new GImage("heart.png");
         heart1.scale(0.1);
@@ -175,6 +207,11 @@ public class Main extends GraphicsProgram implements MouseListener{
         }
     }
 
+    /**
+     * додає життя для другого рівня
+     * @param f об'єкт класу SecondLVL
+     * @param cnt кількість життів
+     */
     private void addLives2(SecondLVL f, int cnt){
         heart1 = new GImage("heart.png", 10, 10);
         System.out.println(heart1.getWidth());
@@ -192,6 +229,11 @@ public class Main extends GraphicsProgram implements MouseListener{
         }
     }
 
+    /**
+     * додає життя для третього рівня
+     * @param f об'єкт класу ThirdLVL
+     * @param cnt кількість життів
+     */
     private void addLives3(ThirdLVL f, int cnt){
         heart1 = new GImage("heart.png", 10, 10);
         System.out.println(heart1.getWidth());
@@ -209,6 +251,10 @@ public class Main extends GraphicsProgram implements MouseListener{
         }
     }
 
+    /**
+     * додає фон
+     * @return об’єкт фону
+     */
     public GRect wallPaper() {
         wallpaper = new GRect(0, 0, 710, 700);
         wallpaper.setFilled(true);
@@ -216,6 +262,11 @@ public class Main extends GraphicsProgram implements MouseListener{
         return wallpaper;
     }
 
+
+    /**
+     * додає ракетку на екран
+     * @return об'єкт ракетки
+     */
     public GRect rocket() {
         rocket = new GRect(310, 600, 100, 20);
         rocket.setFilled(true);
@@ -224,6 +275,13 @@ public class Main extends GraphicsProgram implements MouseListener{
     }
 
     private RandomGenerator rgen = RandomGenerator.getDefault();
+
+
+    /**
+     * розміщує м’яч на екран
+     * @param r значення діаметра
+     * @return об’єкт м’яча
+     */
     public GOval setBall(int r) {
         GOval ball1 = new GOval(rgen.nextInt(50, this.getWidth() - 50), rgen.nextInt(300,500), r,r);
         ball1.setFilled(true);
@@ -231,53 +289,66 @@ public class Main extends GraphicsProgram implements MouseListener{
         return ball1;
     }
 
-    public void moveBall(int speedX, int speedY) {
-        ball.move(speedX, speedY);
-    }
-
-    private boolean isRocket(GObject im, int speedX, int speedY){
-        //bottom
-        if (getElementAt(im.getX() + im.getWidth() / 2 + speedX, im.getY() + im.getHeight() + 1 + speedY) == rocket)
-            return true;
-        if (getElementAt(im.getX() + im.getWidth() + speedX, im.getY() + im.getHeight() + 1 + speedY) == rocket)
-            return true;
-        if (getElementAt(im.getX() + speedX, im.getY() + im.getHeight() + 1 + speedY) == rocket)
-            return true;
-
-        return false;
-    }
-
-    private boolean inCircle(GOval balls, GObject getOb){
-        double ballX = balls.getX() - 8, ballY = balls.getY() - 8;
-        if (getOb != null && getOb != wallpaper && getOb != heart1 && getOb != heart2 && getOb != heart3)
-            return Math.pow(ballX - getOb.getX(), 2) + Math.pow(ballY - getOb.getY(), 2) <= 64;
-        return false;
-    }
-
-    private void stopGameBad(){
-        removeAll();
-    }
-
-    private boolean cntIsZero(){
-        cnt--;
-        if (cnt <= 0){
-            removeAll();
-        }
-        return cnt <= 0;
-    }
 
     @Override
     public void mouseClicked(MouseEvent mouseEvent) {
 
     }
 
+
+    /**
+     * рухає ракетку по екрану
+     * @param mouseEvent the event to be processed
+     */
     @Override
     public void mouseDragged(MouseEvent mouseEvent) {
         if (mouseEvent.getX() >= 0 && mouseEvent.getX() <= getWidth() - rocket.getWidth())
             rocket.setLocation(mouseEvent.getX(), rocket.getY());
     }
-}
 
+
+    /**
+     * додає лічильник очок для першого рівня
+     * @param f об'єкт класу FirstLVL
+     * @param points кількість очок
+     * @return об’єкт з написом кількості очок
+     */
+    public GLabel addPoints1(FirstLVL f, int points) {
+        String pointsText = "" + points;
+        GLabel pointsLabel = new GLabel(pointsText, 670, 30);
+        pointsLabel.setFont("Arial-40");
+        pointsLabel.setColor(Color.RED);
+        return pointsLabel;
+    }
+
+    /**
+     * додає лічильник очок для другого рівня
+     * @param f об'єкт класу SecondLVL
+     * @param points кількість очок
+     * @return Повертаємо об’єкт з написом кількості очок
+     */
+    public GLabel addPoints2(SecondLVL f, int points) {
+        String pointsText = "" + points;
+        GLabel pointsLabel = new GLabel(pointsText, 670, 30);
+        pointsLabel.setFont("Arial-40");
+        pointsLabel.setColor(Color.RED);
+        return pointsLabel;
+    }
+
+    /**
+     * додає лічильник очок для третього рівня
+     * @param f об'єкт класу ThirdLVL
+     * @param points кількість очок
+     * @return об’єкт з написом кількості очок
+     */
+    public GLabel addPoints3(ThirdLVL f, int points) {
+        String pointsText = "" + points;
+        GLabel pointsLabel = new GLabel(pointsText, 665, 30);
+        pointsLabel.setFont("Arial-40");
+        pointsLabel.setColor(Color.RED);
+        return pointsLabel;
+    }
+}
 class Member extends GraphicsProgram{
     public GRect ob;
     public int index;
